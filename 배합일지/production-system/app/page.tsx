@@ -209,7 +209,7 @@ export default function HomePage() {
         
         setTimeout(() => setSuccessMessage(''), 3000);
       } else {
-        setErrors(result.errors?.map((e: any) => e.message) || ['저장 중 오류가 발생했습니다.']);
+        setErrors(result.errors?.map((e: {message: string}) => e.message) || ['저장 중 오류가 발생했습니다.']);
       }
     } catch (error) {
       console.error('저장 실패:', error);

@@ -41,10 +41,10 @@ export default function ProductSelector({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="relative w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {selectedProduct ? (
-          <span className="block truncate">
+          <span className="block truncate pr-8">
             {selectedProduct.productCode}_{selectedProduct.productName}
           </span>
         ) : (

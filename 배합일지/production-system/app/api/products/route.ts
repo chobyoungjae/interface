@@ -6,7 +6,9 @@ const bomService = new BOMService();
 
 export async function GET() {
   try {
+    console.log('Google Sheets에서 BOM 데이터 읽기 시도...');
     const products = await bomService.getProducts();
+    console.log('읽어온 제품 수:', products.length);
     return NextResponse.json(products);
   } catch (error) {
     console.error('제품 데이터 조회 실패:', error);

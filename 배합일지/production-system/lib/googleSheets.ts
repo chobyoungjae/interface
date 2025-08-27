@@ -25,19 +25,19 @@ export class GoogleSheetsService {
     return doc;
   }
 
-  async readBOMData(): Promise<any[]> {
+  async readBOMData(): Promise<unknown[]> {
     try {
       const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
       const sheet = doc.sheetsByIndex[0];
       const rows = await sheet.getRows();
       
       return rows.map(row => ({
-        A: row.get('A') || '', // 생산품목코드
-        B: row.get('B') || '', // 생산품목명
-        E: parseFloat(row.get('E') || '0') || 0, // 생산수량
-        F: row.get('F') || '', // 소모품목코드
-        G: row.get('G') || '', // 소모품목명
-        I: parseFloat(row.get('I') || '0') || 0, // 소모수량
+        A: row.get('생산품목코드') || '', // 생산품목코드
+        B: row.get('생산품목명') || '', // 생산품목명
+        E: parseFloat(row.get('생산수량') || '0') || 0, // 생산수량
+        F: row.get('소모품목코드') || '', // 소모품목코드
+        G: row.get('소모품목명') || '', // 소모품목명
+        I: parseFloat(row.get('소모수량') || '0') || 0, // 소모수량
       }));
     } catch (error) {
       console.error('BOM 데이터 읽기 실패:', error);
@@ -55,19 +55,28 @@ export class GoogleSheetsService {
       }
       
       const rows = await sheet.getRows();
+      console.log('시리얼로트 데이터 헤더:', rows[0]?._sheet.headerValues);
+      console.log('시리얼로트 데이터 총 행 수:', rows.length);
       
-      return rows.map(row => ({
-        code: row.get('A') || '',        // A열: 원재료 코드
-        serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
-        stockQuantity: row.get('F') || '' // F열: 재고수량
-      })).filter(item => item.code && item.serialLot && item.stockQuantity);
+      return rows.map((row, index) => {
+        console.log(`시리얼로트 행 ${index}:`, {
+          A: row.get('A'),
+          D: row.get('D'), 
+          F: row.get('F')
+        });
+        return {
+          code: row.get('A') || '',        // A열: 원재료 코드
+          serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
+          stockQuantity: row.get('F') || '' // F열: 재고수량
+        };
+      }).filter(item => item.code && item.serialLot && item.stockQuantity);
     } catch (error) {
       console.error('시리얼로트 데이터 읽기 실패:', error);
       return [];
     }
   }
 
-  async saveProductionData(data: any[]): Promise<void> {
+  async saveProductionData(data: unknown[]): Promise<void> {
     try {
       console.log('저장할 데이터:', data);
       const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
@@ -101,7 +110,7 @@ export class GoogleSheetsService {
         console.log('헤더 확장 완료:', newHeaders.slice(currentHeaders.length));
       }
       
-      await sheet.addRow(data);
+      await sheet.addRow(data as unknown as Record<string, string | number>);
       console.log('데이터 저장 성공!');
     } catch (error) {
       console.error('생산 데이터 저장 실패:', error);

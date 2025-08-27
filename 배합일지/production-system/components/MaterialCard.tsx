@@ -25,7 +25,7 @@ export default function MaterialCard({
   stockQuantity,
   onSerialLotChange,
   onStockQuantityChange,
-  onQuantityChange,
+  // onQuantityChange, // 현재 사용되지 않음
   onCopy,
   onDelete,
   serialLotData,
@@ -61,15 +61,16 @@ export default function MaterialCard({
     }
   };
 
-  const handleStockQuantityChange = (newStockQuantity: string) => {
-    setLocalStockQuantity(newStockQuantity);
-    onStockQuantityChange(newStockQuantity);
-  };
+  // 현재 사용되지 않는 함수들 - 필요시 주석 해제
+  // const handleStockQuantityChange = (newStockQuantity: string) => {
+  //   setLocalStockQuantity(newStockQuantity);
+  //   onStockQuantityChange(newStockQuantity);
+  // };
 
-  const handleQuantityChange = (newQuantity: number) => {
-    setLocalQuantity(newQuantity);
-    onQuantityChange(newQuantity);
-  };
+  // const handleQuantityChange = (newQuantity: number) => {
+  //   setLocalQuantity(newQuantity);
+  //   onQuantityChange(newQuantity);
+  // };
 
   return (
     <div className={`border rounded-lg p-3 transition-all ${

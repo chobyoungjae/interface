@@ -6,14 +6,19 @@ export class BOMService {
 
   async getProducts(): Promise<Product[]> {
     const bomData = await this.googleSheetsService.readBOMData();
-    return this.groupBOMData(bomData);
+    return this.groupBOMData(bomData as BOMRawData[]);
   }
 
   private groupBOMData(bomData: BOMRawData[]): Product[] {
     const groups = new Map<string, Product>();
-
-    bomData.forEach((row) => {
-      if (!row.A || !row.B || !row.E || !row.F || !row.G || !row.I) return;
+    console.log('BOM 데이터 총 행 수:', bomData.length);
+    
+    bomData.forEach((row, index) => {
+      console.log(`행 ${index}:`, row);
+      if (!row.A || !row.B || !row.E || !row.F || !row.G || !row.I) {
+        console.log(`행 ${index} 필터링됨 - 빈 값 존재`);
+        return;
+      }
 
       // A열(생산품목코드) + B열(생산품목명) 조합으로 그룹핑 (중복 제거)
       const key = `${row.A}_${row.B}`;
