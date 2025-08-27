@@ -27,8 +27,9 @@ export default function HomePage() {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    loadProducts();
-    loadSerialLotData();
+    // 임시로 API 호출 비활성화
+    // loadProducts();
+    // loadSerialLotData();
   }, []);
 
   const loadProducts = async () => {
