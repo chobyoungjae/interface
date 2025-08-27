@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__smithery-sequential-thinking__sequentialthinking",
+      "mcp__upstash-context-7-mcp__resolve-library-id",
+      "mcp__upstash-context-7-mcp__get-library-docs",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run dev:*)",
+      "mcp__playwright__init-browser",
+      "mcp__playwright__get-screenshot",
+      "mcp__playwright__execute-code"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
