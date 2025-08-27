@@ -62,14 +62,14 @@ export class GoogleSheetsService {
       
       return rows.map((row, index) => {
         console.log(`시리얼로트 행 ${index}:`, {
-          A: row.get('A'),
-          D: row.get('D'), 
-          F: row.get('F')
+          품목코드: row.get('품목코드'),
+          시리얼로트No: row.get('시리얼/로트No.'), 
+          재고수량: row.get('재고수량')
         });
         return {
-          code: row.get('A') || '',        // A열: 원재료 코드
-          serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
-          stockQuantity: row.get('F') || '' // F열: 재고수량
+          code: row.get('품목코드') || '',        // A열: 품목코드
+          serialLot: row.get('시리얼/로트No.') || '',   // D열: 시리얼/로트No.
+          stockQuantity: row.get('재고수량') || '' // F열: 재고수량
         };
       }).filter(item => item.code && item.serialLot && item.stockQuantity);
     } catch (error) {
