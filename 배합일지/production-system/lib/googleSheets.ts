@@ -55,12 +55,21 @@ export class GoogleSheetsService {
       }
       
       const rows = await sheet.getRows();
+      console.log('시리얼로트 데이터 헤더:', rows[0]?._sheet.headerValues);
+      console.log('시리얼로트 데이터 총 행 수:', rows.length);
       
-      return rows.map(row => ({
-        code: row.get('A') || '',        // A열: 원재료 코드
-        serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
-        stockQuantity: row.get('F') || '' // F열: 재고수량
-      })).filter(item => item.code && item.serialLot && item.stockQuantity);
+      return rows.map((row, index) => {
+        console.log(`시리얼로트 행 ${index}:`, {
+          A: row.get('A'),
+          D: row.get('D'), 
+          F: row.get('F')
+        });
+        return {
+          code: row.get('A') || '',        // A열: 원재료 코드
+          serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
+          stockQuantity: row.get('F') || '' // F열: 재고수량
+        };
+      }).filter(item => item.code && item.serialLot && item.stockQuantity);
     } catch (error) {
       console.error('시리얼로트 데이터 읽기 실패:', error);
       return [];
