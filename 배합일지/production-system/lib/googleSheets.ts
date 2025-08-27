@@ -32,12 +32,12 @@ export class GoogleSheetsService {
       const rows = await sheet.getRows();
       
       return rows.map(row => ({
-        A: row.get('A') || row._rawData[0], // 생산품목코드
-        B: row.get('B') || row._rawData[1], // 생산품목명
-        E: parseFloat(row.get('E') || row._rawData[4]) || 0, // 생산수량
-        F: row.get('F') || row._rawData[5], // 소모품목코드
-        G: row.get('G') || row._rawData[6], // 소모품목명
-        I: parseFloat(row.get('I') || row._rawData[8]) || 0, // 소모수량
+        A: row.get('A') || '', // 생산품목코드
+        B: row.get('B') || '', // 생산품목명
+        E: parseFloat(row.get('E') || '0') || 0, // 생산수량
+        F: row.get('F') || '', // 소모품목코드
+        G: row.get('G') || '', // 소모품목명
+        I: parseFloat(row.get('I') || '0') || 0, // 소모수량
       }));
     } catch (error) {
       console.error('BOM 데이터 읽기 실패:', error);
@@ -57,9 +57,9 @@ export class GoogleSheetsService {
       const rows = await sheet.getRows();
       
       return rows.map(row => ({
-        code: row.get('A') || row._rawData[0] || '',        // A열: 원재료 코드
-        serialLot: row.get('D') || row._rawData[3] || '',   // D열: 시리얼/로트No.
-        stockQuantity: row.get('F') || row._rawData[5] || '' // F열: 재고수량
+        code: row.get('A') || '',        // A열: 원재료 코드
+        serialLot: row.get('D') || '',   // D열: 시리얼/로트No.
+        stockQuantity: row.get('F') || '' // F열: 재고수량
       })).filter(item => item.code && item.serialLot && item.stockQuantity);
     } catch (error) {
       console.error('시리얼로트 데이터 읽기 실패:', error);
