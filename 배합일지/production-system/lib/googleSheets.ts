@@ -54,8 +54,9 @@ export class GoogleSheetsService {
         return [];
       }
       
-      // 헤더가 2행에 있으므로 headerRowIndex를 1로 설정 (0부터 시작)
-      const rows = await sheet.getRows({ offset: 0, headerRowIndex: 1 });
+      // 헤더가 2행에 있으므로 먼저 헤더 행을 수동으로 설정
+      await sheet.loadHeaderRow(2); // 2행을 헤더로 설정 (1부터 시작)
+      const rows = await sheet.getRows();
       console.log('시리얼로트 데이터 총 행 수:', rows.length);
       if (rows.length > 0) {
         console.log('시리얼로트 첫 번째 행 키들:', Object.keys(rows[0]));
