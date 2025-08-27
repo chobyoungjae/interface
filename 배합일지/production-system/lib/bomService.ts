@@ -6,7 +6,7 @@ export class BOMService {
 
   async getProducts(): Promise<Product[]> {
     const bomData = await this.googleSheetsService.readBOMData();
-    return this.groupBOMData(bomData);
+    return this.groupBOMData(bomData as BOMRawData[]);
   }
 
   private groupBOMData(bomData: BOMRawData[]): Product[] {

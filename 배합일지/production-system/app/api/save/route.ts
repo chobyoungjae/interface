@@ -69,7 +69,7 @@ function validateProductionData(data: ProductionData): ValidationError[] {
   return errors;
 }
 
-function flattenProductionData(data: ProductionData): any[] {
+function flattenProductionData(data: ProductionData): (string | number)[] {
   const flattened = [
     data.productCode, 
     data.productName, 
