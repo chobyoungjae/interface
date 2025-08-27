@@ -32,12 +32,12 @@ export class GoogleSheetsService {
       const rows = await sheet.getRows();
       
       return rows.map(row => ({
-        A: row.get('A') || '', // 생산품목코드
-        B: row.get('B') || '', // 생산품목명
-        E: parseFloat(row.get('E') || '0') || 0, // 생산수량
-        F: row.get('F') || '', // 소모품목코드
-        G: row.get('G') || '', // 소모품목명
-        I: parseFloat(row.get('I') || '0') || 0, // 소모수량
+        A: row.get('생산품목코드') || '', // 생산품목코드
+        B: row.get('생산품목명') || '', // 생산품목명
+        E: parseFloat(row.get('생산수량') || '0') || 0, // 생산수량
+        F: row.get('소모품목코드') || '', // 소모품목코드
+        G: row.get('소모품목명') || '', // 소모품목명
+        I: parseFloat(row.get('소모수량') || '0') || 0, // 소모수량
       }));
     } catch (error) {
       console.error('BOM 데이터 읽기 실패:', error);
