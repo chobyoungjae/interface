@@ -55,8 +55,10 @@ export class GoogleSheetsService {
       }
       
       const rows = await sheet.getRows();
-      console.log('시리얼로트 데이터 헤더:', rows[0]?._sheet.headerValues);
       console.log('시리얼로트 데이터 총 행 수:', rows.length);
+      if (rows.length > 0) {
+        console.log('시리얼로트 첫 번째 행 키들:', Object.keys(rows[0]));
+      }
       
       return rows.map((row, index) => {
         console.log(`시리얼로트 행 ${index}:`, {
