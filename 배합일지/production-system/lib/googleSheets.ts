@@ -83,6 +83,38 @@ export class GoogleSheetsService {
     }
   }
 
+  async readAuthorsData(): Promise<string[]> {
+    try {
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle['B']; // B시트 선택
+      if (!sheet) {
+        console.warn('B 시트를 찾을 수 없습니다.');
+        return [];
+      }
+      
+      const rows = await sheet.getRows();
+      
+      // B5:B열과 C5:C열에서 C열이 "생산팀"인 사람들만 필터링 (5행부터)
+      const authors: string[] = [];
+      rows.forEach((row, index) => {
+        // 5행부터 시작하므로 인덱스 4부터 확인
+        if (index >= 4) {
+          const name = row._rawData[1]; // B열 (0부터 시작하므로 인덱스 1)
+          const department = row._rawData[2]; // C열 (0부터 시작하므로 인덱스 2)
+          
+          if (name && department === '생산팀') {
+            authors.push(name);
+          }
+        }
+      });
+      
+      return [...new Set(authors)]; // 중복 제거
+    } catch (error) {
+      console.error('작성자 데이터 읽기 실패:', error);
+      return [];
+    }
+  }
+
   async saveProductionData(data: unknown[]): Promise<void> {
     try {
       const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
@@ -94,13 +126,13 @@ export class GoogleSheetsService {
       
       // 현재 헤더 길이 확인 후 필요시 확장
       const currentHeaders = sheet.headerValues;
-      const requiredColumns = 5 + (data.length - 5); // 기본 5개 + 원재료 데이터
+      const requiredColumns = 7 + (data.length - 7); // 기본 7개 + 원재료 데이터
       
       if (currentHeaders.length < requiredColumns) {
         const newHeaders = [...currentHeaders];
         
         // 원재료 헤더를 동적으로 추가
-        let materialCount = Math.floor((currentHeaders.length - 5) / 4) + 1;
+        let materialCount = Math.floor((currentHeaders.length - 7) / 4) + 1;
         while (newHeaders.length < requiredColumns) {
           newHeaders.push(`코드${materialCount}`);
           newHeaders.push(`원재료명${materialCount}`);

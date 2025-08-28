@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleSheetsService } from '@/lib/googleSheets';
 import { ProductionData, ValidationError } from '@/types';
+import { formatKoreanDateTime } from '@/lib/dateUtils';
 
 const googleSheetsService = GoogleSheetsService.getInstance();
 
@@ -54,6 +55,10 @@ function validateProductionData(data: ProductionData): ValidationError[] {
     errors.push({ field: 'inputWeight', message: '올바른 중량을 입력해주세요.' });
   }
 
+  if (!data.author) {
+    errors.push({ field: 'author', message: '작성자를 선택해주세요.' });
+  }
+
   data.materials.forEach((material, index) => {
     if (!material.serialLot) {
       errors.push({ field: `materials.${index}.serialLot`, message: `원재료 ${index + 1}의 시리얼/로트번호가 필요합니다.` });
@@ -68,11 +73,13 @@ function validateProductionData(data: ProductionData): ValidationError[] {
 
 function flattenProductionData(data: ProductionData): (string | number)[] {
   const flattened = [
-    data.productCode, 
-    data.productName, 
-    data.inputWeight, // 이미 그램 단위로 들어오므로 그대로 저장
-    data.productExpiry,
-    data.productLot
+    formatKoreanDateTime(), // A열: 타임스템프
+    data.author,           // B열: 작성자
+    data.productCode,      // C열: 제품코드
+    data.productName,      // D열: 제품명
+    data.inputWeight,      // E열: 생산중량 (그램)
+    data.productExpiry,    // F열: 소비기한
+    data.productLot        // G열: 제품로트
   ];
 
   data.materials.forEach((material) => {

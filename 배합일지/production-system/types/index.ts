@@ -28,6 +28,7 @@ export interface ProductionData {
   inputWeight: number;
   productExpiry: string;
   productLot: string;
+  author: string;
   materials: Array<{
     code: string;
     name: string;

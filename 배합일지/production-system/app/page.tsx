@@ -19,6 +19,8 @@ export default function HomePage() {
   
   const [productExpiry, setProductExpiry] = useState<string>(getDefaultExpiry());
   const [productLot, setProductLot] = useState<string>('');
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('');
+  const [authors, setAuthors] = useState<string[]>([]);
   const [calculatedMaterials, setCalculatedMaterials] = useState<Material[]>([]);
   const [materialInputs, setMaterialInputs] = useState<Record<string, { serialLot: string; stockQuantity: string; quantity: number }>>({});
   const [serialLotData, setSerialLotData] = useState<{code: string, serialLot: string, stockQuantity: string}[]>([]);
@@ -31,6 +33,7 @@ export default function HomePage() {
     loadProducts();
     loadSerialLotData();
     loadAllMaterials();
+    loadAuthors();
   }, []);
 
   const loadProducts = async () => {
@@ -61,6 +64,16 @@ export default function HomePage() {
       setAllMaterials(data);
     } catch (error) {
       console.error('원재료 목록 로딩 실패:', error);
+    }
+  };
+
+  const loadAuthors = async () => {
+    try {
+      const response = await fetch('/api/authors');
+      const data = await response.json();
+      setAuthors(data);
+    } catch (error) {
+      console.error('작성자 목록 로딩 실패:', error);
     }
   };
 
@@ -201,7 +214,7 @@ export default function HomePage() {
   };
 
   const isFormValid = () => {
-    if (!selectedProduct || inputWeight <= 0 || calculatedMaterials.length === 0) return false;
+    if (!selectedProduct || inputWeight <= 0 || calculatedMaterials.length === 0 || !selectedAuthor) return false;
     
     return calculatedMaterials.every(material => 
       materialInputs[material.code]?.serialLot && materialInputs[material.code]?.stockQuantity
@@ -224,6 +237,7 @@ export default function HomePage() {
         inputWeight,
         productExpiry,
         productLot,
+        author: selectedAuthor,
         materials: calculatedMaterials.map(material => ({
           code: material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code,
           name: material.name || '',
@@ -250,6 +264,7 @@ export default function HomePage() {
         setInputWeight(0);
         setProductExpiry(getDefaultExpiry()); // 기본 소비기한으로 리셋
         setProductLot('');
+        setSelectedAuthor(''); // 작성자 리셋
         setCalculatedMaterials([]);
         setMaterialInputs({});
         
@@ -292,6 +307,24 @@ export default function HomePage() {
             selectedProduct={selectedProduct}
             onProductSelect={handleProductSelect}
           />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              작성자
+            </label>
+            <select
+              value={selectedAuthor}
+              onChange={(e) => setSelectedAuthor(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">작성자를 선택하세요</option>
+              {authors.map((author) => (
+                <option key={author} value={author}>
+                  {author}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

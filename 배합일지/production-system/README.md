@@ -21,11 +21,13 @@
 ## 설치 및 실행
 
 1. 의존성 설치:
+
 ```bash
 npm install
 ```
 
 2. 환경 변수 설정 (`.env.local`):
+
 ```env
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -34,11 +36,13 @@ STORAGE_SPREADSHEET_ID=your-storage-spreadsheet-id
 ```
 
 3. 개발 서버 실행:
+
 ```bash
 npm run dev
 ```
 
 4. 프로덕션 빌드:
+
 ```bash
 npm run build
 npm start
@@ -47,11 +51,13 @@ npm start
 ## 핵심 비즈니스 로직
 
 ### 원재료 계산 공식
+
 ```
 계산된소모수량 = (입력중량 / 기준생산수량) × 원래소모수량
 ```
 
 ### 데이터 흐름
+
 1. 사용자가 드롭다운에서 제품 선택
 2. 시스템이 BOM 데이터를 가져와 원재료 그룹화
 3. 사용자가 생산 중량 입력 (그램 단위)
