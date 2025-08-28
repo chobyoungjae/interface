@@ -52,17 +52,25 @@ export default function MaterialCard({
     setLocalQuantity(quantity);
   }, [quantity]);
 
-  // 원재료가 변경될 때 시리얼로트와 재고수량 초기화
+  // 원재료가 변경될 때 시리얼로트와 재고수량 초기화 (단, props가 변경될 때만)
   useEffect(() => {
-    const currentMaterial = `${code}_${name}`;
-    if (currentMaterial !== localMaterial) {
+    const currentMaterial = `${code}_${name || ''}`;
+    if (currentMaterial !== localMaterial && (code || name)) {
       setLocalMaterial(currentMaterial);
-      setLocalSerialLot('');
-      setLocalStockQuantity('');
-      onSerialLotChange('');
-      onStockQuantityChange('');
+      // props에서 전달된 값이 있으면 사용, 없으면 빈 값
+      const newSerialLot = serialLot || '';
+      const newStockQuantity = stockQuantity || '';
+      
+      if (localSerialLot !== newSerialLot) {
+        setLocalSerialLot(newSerialLot);
+        onSerialLotChange(newSerialLot);
+      }
+      if (localStockQuantity !== newStockQuantity) {
+        setLocalStockQuantity(newStockQuantity);
+        onStockQuantityChange(newStockQuantity);
+      }
     }
-  }, [code, name, localMaterial, onSerialLotChange, onStockQuantityChange]);
+  }, [code, name, serialLot, stockQuantity, localMaterial, localSerialLot, localStockQuantity, onSerialLotChange, onStockQuantityChange]);
 
   const handleSerialLotChange = (newSerialLot: string) => {
     setLocalSerialLot(newSerialLot);
