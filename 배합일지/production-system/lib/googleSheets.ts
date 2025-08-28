@@ -92,9 +92,9 @@ export class GoogleSheetsService {
       const doc = await this.authenticateDoc(
         process.env.STORAGE_SPREADSHEET_ID!
       );
-      const sheet = doc.sheetsByTitle["B"]; // B시트 선택
+      const sheet = doc.sheetsByTitle["B시트"]; // B시트 선택
       if (!sheet) {
-        console.warn("B 시트를 찾을 수 없습니다.");
+        console.warn("B시트를 찾을 수 없습니다.");
         return [];
       }
 
