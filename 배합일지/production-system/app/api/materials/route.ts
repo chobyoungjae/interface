@@ -5,7 +5,6 @@ const googleSheetsService = GoogleSheetsService.getInstance();
 
 export async function GET() {
   try {
-    console.log('모든 원재료 목록 가져오기...');
     const doc = await googleSheetsService.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
     const sheet = doc.sheetsByIndex[0];
     const rows = await sheet.getRows();
@@ -28,8 +27,6 @@ export async function GET() {
       code,
       fullName
     }));
-    
-    console.log('원재료 목록 개수:', materials.length);
     
     return NextResponse.json(materials);
   } catch (error) {

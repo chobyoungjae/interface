@@ -28,9 +28,6 @@ export async function POST(request: NextRequest) {
     } catch (saveError) {
       console.error('Google Sheets 저장 실패:', saveError);
       
-      // Fallback: 콘솔에 데이터 출력
-      console.log('저장하려던 데이터:', flattenedData);
-      
       return NextResponse.json({
         message: '생산 데이터가 로컬에 저장되었습니다. (Google Sheets 연결 실패)',
         timestamp: new Date().toISOString(),

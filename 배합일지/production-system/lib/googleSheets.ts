@@ -69,17 +69,8 @@ export class GoogleSheetsService {
       // 헤더가 2행에 있으므로 먼저 헤더 행을 수동으로 설정
       await sheet.loadHeaderRow(2); // 2행을 헤더로 설정 (1부터 시작)
       const rows = await sheet.getRows();
-      console.log('시리얼로트 데이터 총 행 수:', rows.length);
-      if (rows.length > 0) {
-        console.log('시리얼로트 첫 번째 행 키들:', Object.keys(rows[0]));
-      }
       
-      return rows.map((row, index) => {
-        console.log(`시리얼로트 행 ${index}:`, {
-          품목코드: row.get('품목코드'),
-          시리얼로트No: row.get('시리얼/로트No.'), 
-          재고수량: row.get('재고수량')
-        });
+      return rows.map((row) => {
         return {
           code: row.get('품목코드') || '',        // A열: 품목코드
           serialLot: row.get('시리얼/로트No.') || '',   // D열: 시리얼/로트No.
@@ -94,12 +85,9 @@ export class GoogleSheetsService {
 
   async saveProductionData(data: unknown[]): Promise<void> {
     try {
-      console.log('저장할 데이터:', data);
       const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      console.log('문서 로드 성공, 시트 목록:', Object.keys(doc.sheetsByTitle));
       
       const sheet = doc.sheetsByTitle['시트1'] || doc.sheetsByIndex[0];
-      console.log('선택된 시트:', sheet.title);
       
       // 헤더 로드 및 확장
       await sheet.loadHeaderRow();
@@ -109,7 +97,6 @@ export class GoogleSheetsService {
       const requiredColumns = 5 + (data.length - 5); // 기본 5개 + 원재료 데이터
       
       if (currentHeaders.length < requiredColumns) {
-        console.log(`헤더 확장 필요: 현재 ${currentHeaders.length}개, 필요 ${requiredColumns}개`);
         const newHeaders = [...currentHeaders];
         
         // 원재료 헤더를 동적으로 추가
@@ -123,11 +110,9 @@ export class GoogleSheetsService {
         }
         
         await sheet.setHeaderRow(newHeaders);
-        console.log('헤더 확장 완료:', newHeaders.slice(currentHeaders.length));
       }
       
       await sheet.addRow(data as unknown as Record<string, string | number>);
-      console.log('데이터 저장 성공!');
     } catch (error) {
       console.error('생산 데이터 저장 실패:', error);
       throw new Error('생산 데이터를 저장하는 중 오류가 발생했습니다.');

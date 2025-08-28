@@ -9,7 +9,11 @@
       "Bash(npm run dev:*)",
       "mcp__playwright__init-browser",
       "mcp__playwright__get-screenshot",
-      "mcp__playwright__execute-code"
+      "mcp__playwright__execute-code",
+      "Bash(find:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint)",
+      "Bash(npx eslint:*)"
     ],
     "deny": [],
     "ask": []
