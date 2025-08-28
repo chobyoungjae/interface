@@ -167,12 +167,10 @@ export default function HomePage() {
   };
 
   const handleMaterialChange = (oldCode: string, newCode: string, newName: string) => {
-    // calculatedMaterials 업데이트 - 고유한 키를 유지하기 위해 timestamp 추가
-    const uniqueKey = `${newCode}_${Date.now()}`;
-    
+    // calculatedMaterials 업데이트 - 실제 원재료 코드와 이름만 변경
     setCalculatedMaterials(prev => prev.map(material => 
       material.code === oldCode 
-        ? { ...material, code: uniqueKey, name: newName }
+        ? { ...material, code: newCode, name: newName }
         : material
     ));
     
@@ -184,10 +182,17 @@ export default function HomePage() {
       if (oldInputs) {
         delete newInputs[oldCode];
         // 새로운 원재료로 변경 시 시리얼로트와 재고수량 초기화
-        newInputs[uniqueKey] = {
+        newInputs[newCode] = {
           ...oldInputs,
           serialLot: '', // 초기화
           stockQuantity: '' // 초기화
+        };
+      } else {
+        // 기존 입력이 없었다면 새로 생성
+        newInputs[newCode] = {
+          serialLot: '',
+          stockQuantity: '',
+          quantity: calculatedMaterials.find(m => m.code === oldCode)?.quantity || 0
         };
       }
       
@@ -380,9 +385,9 @@ export default function HomePage() {
             </div>
             
             <div className="space-y-2 mb-6">
-              {calculatedMaterials.map((material) => (
+              {calculatedMaterials.map((material, index) => (
                 <MaterialCard
-                  key={material.code}
+                  key={`${material.code}_${index}`}
                   code={material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code}
                   name={material.name || ''}
                   quantity={materialInputs[material.code]?.quantity || material.quantity}
