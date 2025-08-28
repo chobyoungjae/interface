@@ -31,14 +31,26 @@ export class GoogleSheetsService {
       const sheet = doc.sheetsByIndex[0];
       const rows = await sheet.getRows();
       
-      return rows.map(row => ({
-        A: row.get('생산품목코드') || '', // 생산품목코드
-        B: row.get('생산품목명') || '', // 생산품목명
-        E: parseFloat(row.get('생산수량') || '0') || 0, // 생산수량
-        F: row.get('소모품목코드') || '', // 소모품목코드
-        G: row.get('소모품목명') || '', // 소모품목명
-        I: parseFloat(row.get('소모수량') || '0') || 0, // 소모수량
-      }));
+      return rows.map(row => {
+        // 숫자 변환 함수 - 콤마 제거하고 숫자로 변환
+        const toNumber = (value: any): number => {
+          if (!value) return 0;
+          // 숫자면 그대로 반환
+          if (typeof value === 'number') return value;
+          // 문자열이면 콤마 제거 후 변환
+          const str = String(value).replace(/,/g, '');
+          return parseFloat(str) || 0;
+        };
+        
+        return {
+          A: row.get('생산품목코드') || '', // 생산품목코드
+          B: row.get('생산품목명') || '', // 생산품목명
+          E: toNumber(row.get('생산수량')), // 생산수량 - 숫자 변환
+          F: row.get('소모품목코드') || '', // 소모품목코드
+          G: row.get('소모품목명') || '', // 소모품목명
+          I: toNumber(row.get('소모수량')), // 소모수량 - 숫자 변환
+        };
+      });
     } catch (error) {
       console.error('BOM 데이터 읽기 실패:', error);
       throw new Error('BOM 데이터를 읽는 중 오류가 발생했습니다.');

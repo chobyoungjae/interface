@@ -253,10 +253,10 @@ export default function HomePage() {
             </label>
             <input
               type="text"
-              value={inputWeight ? (inputWeight * 1000).toLocaleString() : ''}
+              value={inputWeight ? inputWeight.toLocaleString() : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, '');
-                handleWeightChange((parseFloat(value) || 0) / 1000);
+                handleWeightChange(parseFloat(value) || 0);
               }}
               placeholder="중량을 입력하세요 (g)"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -311,7 +311,7 @@ export default function HomePage() {
                 원재료 목록 ({calculatedMaterials.length}개)
               </h2>
               <div className="text-lg font-bold text-blue-600">
-                총 합계: {(calculatedMaterials.reduce((total, material) => 
+                총 합계: {Math.round(calculatedMaterials.reduce((total, material) => 
                   total + (materialInputs[material.code]?.quantity || material.quantity), 0
                 ) * 1000).toLocaleString()}g
               </div>

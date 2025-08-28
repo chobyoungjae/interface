@@ -87,7 +87,7 @@ export default function MaterialCard({
         {/* 수량 */}
         <div className="w-24">
           <span className="font-bold text-blue-600">
-            {(localQuantity * 1000).toLocaleString()}g
+            {Math.round(localQuantity * 1000).toLocaleString()}g
           </span>
         </div>
         
