@@ -221,7 +221,7 @@ export default function HomePage() {
         productLot,
         materials: calculatedMaterials.map(material => ({
           code: material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code,
-          name: material.name,
+          name: material.name || '',
           calculatedWeight: materialInputs[material.code]?.quantity || material.quantity,
           serialLot: materialInputs[material.code].serialLot,
           stockQuantity: materialInputs[material.code].stockQuantity,
