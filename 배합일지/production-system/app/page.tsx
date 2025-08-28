@@ -21,6 +21,8 @@ export default function HomePage() {
   const [productLot, setProductLot] = useState<string>('');
   const [selectedAuthor, setSelectedAuthor] = useState<string>('');
   const [authors, setAuthors] = useState<string[]>([]);
+  const [selectedMachine, setSelectedMachine] = useState<string>('');
+  const machines = ['1호기', '2호기', '3호기', '4호기', '5호기', '6호기'];
   const [calculatedMaterials, setCalculatedMaterials] = useState<Material[]>([]);
   const [materialInputs, setMaterialInputs] = useState<Record<string, { serialLot: string; stockQuantity: string; quantity: number }>>({});
   const [serialLotData, setSerialLotData] = useState<{code: string, serialLot: string, stockQuantity: string}[]>([]);
@@ -214,7 +216,7 @@ export default function HomePage() {
   };
 
   const isFormValid = () => {
-    if (!selectedProduct || inputWeight <= 0 || calculatedMaterials.length === 0 || !selectedAuthor) return false;
+    if (!selectedProduct || inputWeight <= 0 || calculatedMaterials.length === 0 || !selectedAuthor || !selectedMachine) return false;
     
     return calculatedMaterials.every(material => 
       materialInputs[material.code]?.serialLot && materialInputs[material.code]?.stockQuantity
@@ -238,6 +240,7 @@ export default function HomePage() {
         productExpiry,
         productLot,
         author: selectedAuthor,
+        machine: selectedMachine,
         materials: calculatedMaterials.map(material => ({
           code: material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code,
           name: material.name || '',
@@ -265,6 +268,7 @@ export default function HomePage() {
         setProductExpiry(getDefaultExpiry()); // 기본 소비기한으로 리셋
         setProductLot('');
         setSelectedAuthor(''); // 작성자 리셋
+        setSelectedMachine(''); // 호기 리셋
         setCalculatedMaterials([]);
         setMaterialInputs({});
         
@@ -301,12 +305,30 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           <ProductSelector
             products={products}
             selectedProduct={selectedProduct}
             onProductSelect={handleProductSelect}
           />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              호기
+            </label>
+            <select
+              value={selectedMachine}
+              onChange={(e) => setSelectedMachine(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            >
+              <option value="">호기를 선택하세요</option>
+              {machines.map((machine) => (
+                <option key={machine} value={machine}>
+                  {machine}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">

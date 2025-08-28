@@ -33,12 +33,14 @@ npm run lint
 ## Architecture Overview
 
 ### Frontend (React/Next.js)
+
 - **Main Page** (`app/page.tsx`): Production data entry interface with product selection, weight calculation, and material management
 - **Components**:
   - `ProductSelector`: Searchable product selection dropdown
   - `MaterialCard`: Individual material input card with serial lot and inventory quantity inputs
 
 ### Backend (API Routes)
+
 - `/api/products`: Retrieve grouped BOM data from Google Sheets
 - `/api/calculate`: Calculate material quantities based on input weight
 - `/api/save`: Save production data to storage spreadsheet
@@ -46,16 +48,19 @@ npm run lint
 - `/api/materials`: Retrieve all unique material options for dropdown selection
 
 ### Data Services
+
 - **GoogleSheetsService** (`lib/googleSheets.ts`): Singleton service for Google Sheets API operations
 - **BOMService** (`lib/bomService.ts`): BOM data processing and grouping logic
 - **MockData** (`lib/mockData.ts`): Fallback data for testing
 
 ### Type Definitions
+
 - `types/index.ts`: TypeScript interfaces for BOMRawData, Material, Product, ProductionData
 
 ## Google Sheets Integration
 
 ### Required Environment Variables (.env.local)
+
 ```
 GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@project.iam.gserviceaccount.com
 GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -64,6 +69,7 @@ STORAGE_SPREADSHEET_ID=1DJyHnnLDQmiZEnGXr1nIpTZ1orFhDyXUuZEe9hpKAwQ
 ```
 
 ### Spreadsheet Structure
+
 - **BOM Sheet**: Products grouped by production item code (A) + production item name (B) + production quantity (E)
 - **Storage Sheet**: Horizontal data storage with dynamic header expansion capability
 - **Serial Lot Sheet**: Serial lot and inventory quantity reference data
@@ -71,11 +77,13 @@ STORAGE_SPREADSHEET_ID=1DJyHnnLDQmiZEnGXr1nIpTZ1orFhDyXUuZEe9hpKAwQ
 ## Core Business Logic
 
 ### Material Calculation Formula
+
 ```
 Calculated Consumption = (Input Weight / Base Production Quantity) × Original Consumption
 ```
 
 ### Data Flow
+
 1. User selects product from dropdown
 2. System fetches BOM data and groups materials
 3. User inputs production weight (in grams)
@@ -103,6 +111,7 @@ Calculated Consumption = (Input Weight / Base Production Quantity) × Original C
 ## Important Unit Handling
 
 The system handles weight units carefully:
+
 - **Input**: Users enter weights in grams (g)
 - **Internal calculation**: BOM data stored in kilograms (kg), calculations done in kg
 - **Display**: UI shows grams (g) with proper conversion (kg × 1000)

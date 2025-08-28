@@ -29,6 +29,7 @@ export interface ProductionData {
   productExpiry: string;
   productLot: string;
   author: string;
+  machine: string; // 호기 필드 추가
   materials: Array<{
     code: string;
     name: string;

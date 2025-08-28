@@ -59,6 +59,10 @@ function validateProductionData(data: ProductionData): ValidationError[] {
     errors.push({ field: 'author', message: '작성자를 선택해주세요.' });
   }
 
+  if (!data.machine) {
+    errors.push({ field: 'machine', message: '호기를 선택해주세요.' });
+  }
+
   data.materials.forEach((material, index) => {
     if (!material.serialLot) {
       errors.push({ field: `materials.${index}.serialLot`, message: `원재료 ${index + 1}의 시리얼/로트번호가 필요합니다.` });
@@ -75,11 +79,12 @@ function flattenProductionData(data: ProductionData): (string | number)[] {
   const flattened = [
     formatKoreanDateTime(), // A열: 타임스템프
     data.author,           // B열: 작성자
-    data.productCode,      // C열: 제품코드
-    data.productName,      // D열: 제품명
-    data.inputWeight,      // E열: 생산중량 (그램)
-    data.productExpiry,    // F열: 소비기한
-    data.productLot        // G열: 제품로트
+    data.machine,          // C열: 호기
+    data.productCode,      // D열: 제품코드
+    data.productName,      // E열: 제품명
+    data.inputWeight,      // F열: 생산중량 (그램)
+    data.productExpiry,    // G열: 소비기한
+    data.productLot        // H열: 제품로트
   ];
 
   data.materials.forEach((material) => {
