@@ -1,5 +1,5 @@
-import { GoogleSpreadsheet } from 'google-spreadsheet';
-import { JWT } from 'google-auth-library';
+import { GoogleSpreadsheet } from "google-spreadsheet";
+import { JWT } from "google-auth-library";
 
 export class GoogleSheetsService {
   private static instance: GoogleSheetsService;
@@ -14,10 +14,8 @@ export class GoogleSheetsService {
   async authenticateDoc(spreadsheetId: string): Promise<GoogleSpreadsheet> {
     const serviceAccountAuth = new JWT({
       email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL!,
-      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, '\n'),
-      scopes: [
-        'https://www.googleapis.com/auth/spreadsheets',
-      ],
+      key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
 
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
@@ -30,107 +28,116 @@ export class GoogleSheetsService {
       const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
       const sheet = doc.sheetsByIndex[0];
       const rows = await sheet.getRows();
-      
-      return rows.map(row => {
+
+      return rows.map((row) => {
         // 숫자 변환 함수 - 콤마 제거하고 숫자로 변환
         const toNumber = (value: any): number => {
           if (!value) return 0;
           // 숫자면 그대로 반환
-          if (typeof value === 'number') return value;
+          if (typeof value === "number") return value;
           // 문자열이면 콤마 제거 후 변환
-          const str = String(value).replace(/,/g, '');
+          const str = String(value).replace(/,/g, "");
           return parseFloat(str) || 0;
         };
-        
+
         return {
-          A: row.get('생산품목코드') || '', // 생산품목코드
-          B: row.get('생산품목명') || '', // 생산품목명
-          E: toNumber(row.get('생산수량')), // 생산수량 - 숫자 변환
-          F: row.get('소모품목코드') || '', // 소모품목코드
-          G: row.get('소모품목명') || '', // 소모품목명
-          I: toNumber(row.get('소모수량')), // 소모수량 - 숫자 변환
+          A: row.get("생산품목코드") || "", // 생산품목코드
+          B: row.get("생산품목명") || "", // 생산품목명
+          E: toNumber(row.get("생산수량")), // 생산수량 - 숫자 변환
+          F: row.get("소모품목코드") || "", // 소모품목코드
+          G: row.get("소모품목명") || "", // 소모품목명
+          I: toNumber(row.get("소모수량")), // 소모수량 - 숫자 변환
         };
       });
     } catch (error) {
-      console.error('BOM 데이터 읽기 실패:', error);
-      throw new Error('BOM 데이터를 읽는 중 오류가 발생했습니다.');
+      console.error("BOM 데이터 읽기 실패:", error);
+      throw new Error("BOM 데이터를 읽는 중 오류가 발생했습니다.");
     }
   }
 
-  async readSerialLotData(): Promise<{code: string, serialLot: string, stockQuantity: string}[]> {
+  async readSerialLotData(): Promise<
+    { code: string; serialLot: string; stockQuantity: string }[]
+  > {
     try {
-      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      const sheet = doc.sheetsByTitle['시리얼로트'];
+      const doc = await this.authenticateDoc(
+        process.env.STORAGE_SPREADSHEET_ID!
+      );
+      const sheet = doc.sheetsByTitle["시리얼로트"];
       if (!sheet) {
-        console.warn('시리얼로트 시트를 찾을 수 없습니다.');
+        console.warn("시리얼로트 시트를 찾을 수 없습니다.");
         return [];
       }
-      
+
       // 헤더가 2행에 있으므로 먼저 헤더 행을 수동으로 설정
       await sheet.loadHeaderRow(2); // 2행을 헤더로 설정 (1부터 시작)
       const rows = await sheet.getRows();
-      
-      return rows.map((row) => {
-        return {
-          code: row.get('품목코드') || '',        // A열: 품목코드
-          serialLot: row.get('시리얼/로트No.') || '',   // D열: 시리얼/로트No.
-          stockQuantity: row.get('재고수량') || '' // F열: 재고수량
-        };
-      }).filter(item => item.code && item.serialLot && item.stockQuantity);
+
+      return rows
+        .map((row) => {
+          return {
+            code: row.get("품목코드") || "", // A열: 품목코드
+            serialLot: row.get("시리얼/로트No.") || "", // D열: 시리얼/로트No.
+            stockQuantity: row.get("재고수량") || "", // F열: 재고수량
+          };
+        })
+        .filter((item) => item.code && item.serialLot && item.stockQuantity);
     } catch (error) {
-      console.error('시리얼로트 데이터 읽기 실패:', error);
+      console.error("시리얼로트 데이터 읽기 실패:", error);
       return [];
     }
   }
 
   async readAuthorsData(): Promise<string[]> {
     try {
-      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      const sheet = doc.sheetsByTitle['B']; // B시트 선택
+      const doc = await this.authenticateDoc(
+        process.env.STORAGE_SPREADSHEET_ID!
+      );
+      const sheet = doc.sheetsByTitle["B"]; // B시트 선택
       if (!sheet) {
-        console.warn('B 시트를 찾을 수 없습니다.');
+        console.warn("B 시트를 찾을 수 없습니다.");
         return [];
       }
-      
+
+      // 헤더가 4행에 있으므로 4행을 헤더로 설정
+      await sheet.loadHeaderRow(4); // 4행을 헤더로 설정 (1부터 시작)
       const rows = await sheet.getRows();
-      
-      // B5:B열과 C5:C열에서 C열이 "생산팀"인 사람들만 필터링 (5행부터)
+
+      // B열(이름)과 C열(부서)에서 부서가 "생산팀"인 사람들만 필터링
       const authors: string[] = [];
-      rows.forEach((row, index) => {
-        // 5행부터 시작하므로 인덱스 4부터 확인
-        if (index >= 4) {
-          const name = row._rawData[1]; // B열 (0부터 시작하므로 인덱스 1)
-          const department = row._rawData[2]; // C열 (0부터 시작하므로 인덱스 2)
-          
-          if (name && department === '생산팀') {
-            authors.push(name);
-          }
+      rows.forEach((row) => {
+        const name = row.get("이름") || ""; // B열: 이름
+        const department = row.get("부서") || ""; // C열: 부서
+
+        if (name && department === "생산팀") {
+          authors.push(name);
         }
       });
-      
+
       return [...new Set(authors)]; // 중복 제거
     } catch (error) {
-      console.error('작성자 데이터 읽기 실패:', error);
+      console.error("작성자 데이터 읽기 실패:", error);
       return [];
     }
   }
 
   async saveProductionData(data: unknown[]): Promise<void> {
     try {
-      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      
-      const sheet = doc.sheetsByTitle['시트1'] || doc.sheetsByIndex[0];
-      
+      const doc = await this.authenticateDoc(
+        process.env.STORAGE_SPREADSHEET_ID!
+      );
+
+      const sheet = doc.sheetsByTitle["시트1"] || doc.sheetsByIndex[0];
+
       // 헤더 로드 및 확장
       await sheet.loadHeaderRow();
-      
+
       // 현재 헤더 길이 확인 후 필요시 확장
       const currentHeaders = sheet.headerValues;
       const requiredColumns = 7 + (data.length - 7); // 기본 7개 + 원재료 데이터
-      
+
       if (currentHeaders.length < requiredColumns) {
         const newHeaders = [...currentHeaders];
-        
+
         // 원재료 헤더를 동적으로 추가
         let materialCount = Math.floor((currentHeaders.length - 7) / 4) + 1;
         while (newHeaders.length < requiredColumns) {
@@ -140,14 +147,14 @@ export class GoogleSheetsService {
           newHeaders.push(`시리얼로트${materialCount}`);
           materialCount++;
         }
-        
+
         await sheet.setHeaderRow(newHeaders);
       }
-      
+
       await sheet.addRow(data as unknown as Record<string, string | number>);
     } catch (error) {
-      console.error('생산 데이터 저장 실패:', error);
-      throw new Error('생산 데이터를 저장하는 중 오류가 발생했습니다.');
+      console.error("생산 데이터 저장 실패:", error);
+      throw new Error("생산 데이터를 저장하는 중 오류가 발생했습니다.");
     }
   }
 }

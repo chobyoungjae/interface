@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Product } from '@/types';
+import { useState, useMemo } from "react";
+import { Product } from "@/types";
 
 interface ProductSelectorProps {
   products: Product[];
@@ -9,27 +9,28 @@ interface ProductSelectorProps {
   onProductSelect: (product: Product) => void;
 }
 
-export default function ProductSelector({ 
-  products, 
-  selectedProduct, 
-  onProductSelect 
+export default function ProductSelector({
+  products,
+  selectedProduct,
+  onProductSelect,
 }: ProductSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filteredProducts = useMemo(() => {
     if (!searchTerm) return products;
-    
-    return products.filter(product => 
-      product.productCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.productName.toLowerCase().includes(searchTerm.toLowerCase())
+
+    return products.filter(
+      (product) =>
+        product.productCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.productName.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [products, searchTerm]);
 
   const handleProductSelect = (product: Product) => {
     onProductSelect(product);
     setIsOpen(false);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   return (
@@ -37,7 +38,7 @@ export default function ProductSelector({
       <label className="block text-sm font-medium text-gray-700 mb-2">
         제품 선택
       </label>
-      
+
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -50,10 +51,20 @@ export default function ProductSelector({
         ) : (
           <span className="text-gray-500">제품을 선택하세요</span>
         )}
-        
+
         <span className="absolute right-4 top-1/2 transform -translate-y-1/2">
-          <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+          <svg
+            className={`w-4 h-4 transition-transform ${
+              isOpen ? "rotate-180" : ""
+            }`}
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+              clipRule="evenodd"
+            />
           </svg>
         </span>
       </button>
@@ -70,7 +81,7 @@ export default function ProductSelector({
               autoFocus
             />
           </div>
-          
+
           <div className="max-h-60 overflow-y-auto">
             {filteredProducts.length > 0 ? (
               filteredProducts.slice(0, 10).map((product, index) => (
@@ -79,9 +90,15 @@ export default function ProductSelector({
                   onClick={() => handleProductSelect(product)}
                   className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:bg-gray-50 border-b last:border-b-0"
                 >
-                  <div className="font-medium text-gray-900">{product.productCode}</div>
-                  <div className="text-sm text-gray-600">{product.productName}</div>
-                  <div className="text-xs text-gray-500">기준: {product.baseQuantity}kg</div>
+                  <div className="font-medium text-gray-900">
+                    {product.productCode}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {product.productName}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    기준: {product.baseQuantity}kg
+                  </div>
                 </button>
               ))
             ) : (
