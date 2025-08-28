@@ -22,6 +22,7 @@ export default function HomePage() {
   const [calculatedMaterials, setCalculatedMaterials] = useState<Material[]>([]);
   const [materialInputs, setMaterialInputs] = useState<Record<string, { serialLot: string; stockQuantity: string; quantity: number }>>({});
   const [serialLotData, setSerialLotData] = useState<{code: string, serialLot: string, stockQuantity: string}[]>([]);
+  const [allMaterials, setAllMaterials] = useState<{code: string, fullName: string}[]>([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState('');
@@ -29,6 +30,7 @@ export default function HomePage() {
   useEffect(() => {
     loadProducts();
     loadSerialLotData();
+    loadAllMaterials();
   }, []);
 
   const loadProducts = async () => {
@@ -49,6 +51,16 @@ export default function HomePage() {
       setSerialLotData(data);
     } catch (error) {
       console.error('시리얼로트 데이터 로딩 실패:', error);
+    }
+  };
+
+  const loadAllMaterials = async () => {
+    try {
+      const response = await fetch('/api/materials');
+      const data = await response.json();
+      setAllMaterials(data);
+    } catch (error) {
+      console.error('원재료 목록 로딩 실패:', error);
     }
   };
 
@@ -150,6 +162,35 @@ export default function HomePage() {
     setMaterialInputs(prev => {
       const newInputs = { ...prev };
       delete newInputs[materialCode];
+      return newInputs;
+    });
+  };
+
+  const handleMaterialChange = (oldCode: string, newCode: string, newName: string) => {
+    // calculatedMaterials 업데이트 - 고유한 키를 유지하기 위해 timestamp 추가
+    const uniqueKey = `${newCode}_${Date.now()}`;
+    
+    setCalculatedMaterials(prev => prev.map(material => 
+      material.code === oldCode 
+        ? { ...material, code: uniqueKey, name: newName }
+        : material
+    ));
+    
+    // materialInputs 업데이트 (키 변경하고 시리얼로트 초기화)
+    setMaterialInputs(prev => {
+      const oldInputs = prev[oldCode];
+      const newInputs = { ...prev };
+      
+      if (oldInputs) {
+        delete newInputs[oldCode];
+        // 새로운 원재료로 변경 시 시리얼로트와 재고수량 초기화
+        newInputs[uniqueKey] = {
+          ...oldInputs,
+          serialLot: '', // 초기화
+          stockQuantity: '' // 초기화
+        };
+      }
+      
       return newInputs;
     });
   };
@@ -350,9 +391,11 @@ export default function HomePage() {
                   onSerialLotChange={(serialLot) => handleMaterialInput(material.code, 'serialLot', serialLot)}
                   onStockQuantityChange={(stockQuantity) => handleMaterialInput(material.code, 'stockQuantity', stockQuantity)}
                   onQuantityChange={(quantity) => handleMaterialInput(material.code, 'quantity', quantity)}
+                  onMaterialChange={(newCode, newName) => handleMaterialChange(material.code, newCode, newName)}
                   onCopy={() => handleMaterialCopy(material.code)}
                   onDelete={() => handleMaterialDelete(material.code)}
                   serialLotData={serialLotData}
+                  allMaterials={allMaterials}
                   isCompleted={!!(materialInputs[material.code]?.serialLot && materialInputs[material.code]?.stockQuantity)}
                 />
               ))}

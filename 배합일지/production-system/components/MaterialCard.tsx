@@ -11,9 +11,11 @@ interface MaterialCardProps {
   onSerialLotChange: (serialLot: string) => void;
   onStockQuantityChange: (stockQuantity: string) => void;
   onQuantityChange: (quantity: number) => void;
+  onMaterialChange: (code: string, name: string) => void;
   onCopy: () => void;
   onDelete: () => void;
   serialLotData: {code: string, serialLot: string, stockQuantity: string}[];
+  allMaterials: {code: string, fullName: string}[];
   isCompleted: boolean;
 }
 
@@ -25,15 +27,18 @@ export default function MaterialCard({
   stockQuantity,
   onSerialLotChange,
   onStockQuantityChange,
-  // onQuantityChange, // 현재 사용되지 않음
+  onQuantityChange,
+  onMaterialChange,
   onCopy,
   onDelete,
   serialLotData,
+  allMaterials,
   isCompleted
 }: MaterialCardProps) {
   const [localSerialLot, setLocalSerialLot] = useState(serialLot || '');
   const [localStockQuantity, setLocalStockQuantity] = useState(stockQuantity || '');
   const [localQuantity, setLocalQuantity] = useState(quantity);
+  const [localMaterial, setLocalMaterial] = useState(`${code}_${name}`);
 
   // 컴포넌트 마운트 시 기본값을 부모에게 알림
   useEffect(() => {
@@ -46,6 +51,18 @@ export default function MaterialCard({
   useEffect(() => {
     setLocalQuantity(quantity);
   }, [quantity]);
+
+  // 원재료가 변경될 때 시리얼로트와 재고수량 초기화
+  useEffect(() => {
+    const currentMaterial = `${code}_${name}`;
+    if (currentMaterial !== localMaterial) {
+      setLocalMaterial(currentMaterial);
+      setLocalSerialLot('');
+      setLocalStockQuantity('');
+      onSerialLotChange('');
+      onStockQuantityChange('');
+    }
+  }, [code, name, localMaterial, onSerialLotChange, onStockQuantityChange]);
 
   const handleSerialLotChange = (newSerialLot: string) => {
     setLocalSerialLot(newSerialLot);
@@ -79,16 +96,45 @@ export default function MaterialCard({
         : 'border-gray-300 bg-white'
     }`}>
       <div className="flex items-center gap-4">
-        {/* 제품코드_제품명 */}
+        {/* 원재료 선택 드롭다운 */}
         <div className="flex-1 min-w-0">
-          <span className="font-semibold text-gray-900 truncate block">{code}_{name}</span>
+          <select
+            value={localMaterial}
+            onChange={(e) => {
+              const value = e.target.value;
+              setLocalMaterial(value);
+              const [newCode, ...nameParts] = value.split('_');
+              const newName = nameParts.join('_');
+              onMaterialChange(newCode, newName);
+            }}
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value={localMaterial}>{localMaterial}</option>
+            {allMaterials
+              .filter(m => m.fullName !== localMaterial)
+              .map(material => (
+                <option key={material.code} value={material.fullName}>
+                  {material.fullName}
+                </option>
+              ))}
+          </select>
         </div>
         
-        {/* 수량 */}
-        <div className="w-24">
-          <span className="font-bold text-blue-600">
-            {Math.round(localQuantity * 1000).toLocaleString()}g
-          </span>
+        {/* 수량 입력 */}
+        <div className="w-32 relative">
+          <input
+            type="text"
+            value={Math.round(localQuantity * 1000).toLocaleString()}
+            onChange={(e) => {
+              const value = e.target.value.replace(/,/g, '');
+              const numValue = parseFloat(value) || 0;
+              setLocalQuantity(numValue / 1000); // g를 kg로 변환
+              onQuantityChange(numValue / 1000);
+            }}
+            className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+            placeholder="0"
+          />
+          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none">g</span>
         </div>
         
         {/* 시리얼/로트No. */}
@@ -100,7 +146,11 @@ export default function MaterialCard({
             required
           >
             <option value="">선택</option>
-            {serialLotData.filter(item => item.code === code).map((item, index) => (
+            {serialLotData.filter(item => {
+              // 드롭다운에서 선택된 실제 원재료 코드로 필터링
+              const actualCode = localMaterial.split('_')[0];
+              return item.code === actualCode;
+            }).map((item, index) => (
               <option key={index} value={item.serialLot}>{item.serialLot}</option>
             ))}
           </select>
