@@ -9,7 +9,7 @@ export interface BOMRawData {
 
 export interface Material {
   code: string;
-  name?: string;
+  name: string;
   quantity: number;
   date?: string;
   lot?: string;

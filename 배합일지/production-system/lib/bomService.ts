@@ -48,9 +48,9 @@ export class BOMService {
       const existingMaterial = product.materials.find(m => m.code === row.F);
       if (!existingMaterial) {
         product.materials.push({
-          code: row.F,
-          name: row.G,
-          quantity: row.I,
+          code: row.F || '',
+          name: row.G || '',
+          quantity: row.I || 0,
         });
       }
     });

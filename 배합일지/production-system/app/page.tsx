@@ -384,7 +384,7 @@ export default function HomePage() {
                 <MaterialCard
                   key={material.code}
                   code={material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code}
-                  name={material.name}
+                  name={material.name || ''}
                   quantity={materialInputs[material.code]?.quantity || material.quantity}
                   serialLot={materialInputs[material.code]?.serialLot || ''}
                   stockQuantity={materialInputs[material.code]?.stockQuantity || ''}
