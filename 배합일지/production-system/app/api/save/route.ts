@@ -73,7 +73,7 @@ function flattenProductionData(data: ProductionData): (string | number)[] {
   const flattened = [
     data.productCode, 
     data.productName, 
-    data.inputWeight * 1000, // 내부 kg를 g으로 변환해서 저장
+    data.inputWeight, // 이미 그램 단위로 들어오므로 그대로 저장
     data.productExpiry,
     data.productLot
   ];
@@ -82,7 +82,7 @@ function flattenProductionData(data: ProductionData): (string | number)[] {
     flattened.push(
       material.code,
       material.name,
-      material.calculatedWeight * 1000, // 내부 kg를 g으로 변환해서 저장
+      material.calculatedWeight * 1000, // 원재료는 kg → g 변환 필요
       material.serialLot
     );
   });
