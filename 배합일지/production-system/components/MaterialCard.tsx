@@ -120,6 +120,7 @@ export default function MaterialCard({
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* 원재료 선택 드롭다운 */}
         <div className="flex-1 min-w-0">
+          <label className="block text-xs text-gray-600 mb-1 sm:hidden">원재료명</label>
           <select
             value={localMaterial}
             onChange={(e) => {
@@ -129,7 +130,7 @@ export default function MaterialCard({
               const newName = nameParts.join("_");
               onMaterialChange(newCode, newName);
             }}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
           >
             <option value={localMaterial}>{localMaterial}</option>
             {allMaterials
@@ -159,7 +160,7 @@ export default function MaterialCard({
               className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
               placeholder="0"
             />
-            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none sm:top-1/2 sm:translate-y-0">
+            <span className="absolute right-2 bottom-0.5 text-xs text-gray-500 pointer-events-none">
               g
             </span>
           </div>
@@ -170,7 +171,7 @@ export default function MaterialCard({
             <select
               value={localSerialLot}
               onChange={(e) => handleSerialLotChange(e.target.value)}
-              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right ${
                 localSerialLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
               required
@@ -193,7 +194,7 @@ export default function MaterialCard({
           {/* 재고수량 (자동 선택됨) */}
           <div className="w-full sm:w-32">
             <label className="block text-xs text-gray-600 mb-1 sm:hidden">재고수량</label>
-            <div className="px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100 text-center">
+            <div className="px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100 text-right text-gray-900 font-semibold">
               {localStockQuantity
                 ? (parseFloat(localStockQuantity) * 1000).toLocaleString() + "g"
                 : "자동선택"}
