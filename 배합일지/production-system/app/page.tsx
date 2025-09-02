@@ -425,8 +425,8 @@ export default function HomePage() {
               </div>
             </div>
             
-            {/* 헤더 */}
-            <div className="p-3 font-semibold text-gray-700">
+            {/* 헤더 - 모바일/태블릿에서 숨김, 데스크톱에서만 표시 */}
+            <div className="hidden lg:block p-3 font-semibold text-gray-700">
               <div className="flex items-center gap-4">
                 <div className="flex-1 min-w-0">
                   원재료명
