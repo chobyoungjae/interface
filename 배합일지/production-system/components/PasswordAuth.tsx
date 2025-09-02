@@ -13,21 +13,30 @@ export default function PasswordAuth({ children }: PasswordAuthProps) {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // 비밀번호
-  const correctPassword = 'bom2024!';
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // 로딩 시뮬레이션
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch('/api/auth-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
 
-    if (password === correctPassword) {
-      setIsAuthenticated(true);
-    } else {
-      setError('비밀번호가 올바르지 않습니다.');
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsAuthenticated(true);
+      } else {
+        setError(data.error || '비밀번호가 올바르지 않습니다.');
+      }
+    } catch (error) {
+      console.error('Authentication error:', error);
+      setError('인증 중 오류가 발생했습니다.');
     }
     
     setIsLoading(false);

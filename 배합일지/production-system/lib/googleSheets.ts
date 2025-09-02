@@ -158,6 +158,26 @@ export class GoogleSheetsService {
     }
   }
 
+  async getPasswordFromSheet(): Promise<string> {
+    try {
+      const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle["비밀번호"];
+      if (!sheet) {
+        console.warn("비밀번호 시트를 찾을 수 없습니다.");
+        return 'bom2024!'; // 기본값
+      }
+
+      await sheet.loadCells();
+      const a1Cell = sheet.getCell(0, 0); // A1 (0-based index)
+      const password = String(a1Cell.value || 'bom2024!');
+      
+      return password;
+    } catch (error) {
+      console.error("비밀번호 읽기 실패:", error);
+      return 'bom2024!'; // 기본값
+    }
+  }
+
   async readSerialLotSheetInfo(): Promise<{
     companyInfo: string;
     lastUpdateDate: string;
