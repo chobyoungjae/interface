@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import ProductSelector from '@/components/ProductSelector';
 import MaterialCard from '@/components/MaterialCard';
+import PasswordAuth from '@/components/PasswordAuth';
 import { Product, Material, ProductionData } from '@/types';
 
 export default function HomePage() {
@@ -285,7 +286,8 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 space-y-6">
+    <PasswordAuth>
+      <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-gray-900 mb-6">BOM 기반 배합일지</h1>
 
@@ -475,6 +477,7 @@ export default function HomePage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </PasswordAuth>
   );
 }
