@@ -157,4 +157,38 @@ export class GoogleSheetsService {
       throw new Error("생산 데이터를 저장하는 중 오류가 발생했습니다.");
     }
   }
+
+  async readSerialLotSheetInfo(): Promise<{
+    companyInfo: string;
+    lastUpdateDate: string;
+  } | null> {
+    try {
+      const doc = await this.authenticateDoc(
+        process.env.STORAGE_SPREADSHEET_ID!
+      );
+      const sheet = doc.sheetsByTitle["시리얼로트"];
+      if (!sheet) {
+        console.warn("시리얼로트 시트를 찾을 수 없습니다.");
+        return null;
+      }
+
+      await sheet.loadCells();
+      
+      // A1 셀 정보 읽기
+      const a1Cell = sheet.getCell(0, 0); // A1 (0-based index)
+      const companyInfo = String(a1Cell.value || "");
+
+      // 날짜 추출 (YYYY/MM/DD 형식)
+      const dateMatch = companyInfo.match(/(\d{4}\/\d{2}\/\d{2})/);
+      const lastUpdateDate = dateMatch ? dateMatch[1] : "";
+
+      return {
+        companyInfo,
+        lastUpdateDate
+      };
+    } catch (error) {
+      console.error("시리얼로트 시트 정보 읽기 실패:", error);
+      return null;
+    }
+  }
 }

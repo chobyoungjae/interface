@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import ProductSelector from '@/components/ProductSelector';
 import MaterialCard from '@/components/MaterialCard';
 import PasswordAuth from '@/components/PasswordAuth';
+import CompanyInfoBanner from '@/components/CompanyInfoBanner';
+import DateMismatchModal from '@/components/DateMismatchModal';
 import { Product, Material, ProductionData } from '@/types';
 
 export default function HomePage() {
@@ -31,6 +33,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState('');
+  const [showDateMismatchModal, setShowDateMismatchModal] = useState(false);
 
   useEffect(() => {
     loadProducts();
@@ -287,9 +290,11 @@ export default function HomePage() {
 
   return (
     <PasswordAuth>
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">BOM 기반 배합일지</h1>
+      <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <CompanyInfoBanner onDateMismatch={() => setShowDateMismatchModal(true)} />
+        
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">BOM 기반 배합일지</h1>
 
         {errors.length > 0 && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -307,7 +312,7 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <ProductSelector
             products={products}
             selectedProduct={selectedProduct}
@@ -478,6 +483,11 @@ export default function HomePage() {
         )}
       </div>
       </div>
+      
+      <DateMismatchModal 
+        isOpen={showDateMismatchModal}
+        onClose={() => setShowDateMismatchModal(false)}
+      />
     </PasswordAuth>
   );
 }

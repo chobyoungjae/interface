@@ -117,7 +117,7 @@ export default function MaterialCard({
           : "border-gray-300 bg-white"
       }`}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
         {/* 원재료 선택 드롭다운 */}
         <div className="flex-1 min-w-0">
           <select
@@ -142,54 +142,60 @@ export default function MaterialCard({
           </select>
         </div>
 
-        {/* 수량 입력 */}
-        <div className="w-32 relative">
-          <input
-            type="text"
-            value={Math.round(localQuantity * 1000).toLocaleString()}
-            onChange={(e) => {
-              const value = e.target.value.replace(/,/g, "");
-              const numValue = parseFloat(value) || 0;
-              setLocalQuantity(numValue / 1000); // g를 kg로 변환
-              onQuantityChange(numValue / 1000);
-            }}
-            className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
-            placeholder="0"
-          />
-          <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none">
-            g
-          </span>
-        </div>
+        {/* 모바일: 세로 정렬, 데스크톱: 가로 정렬 */}
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 flex-1">
+          {/* 수량 입력 */}
+          <div className="w-full sm:w-32 relative">
+            <label className="block text-xs text-gray-600 mb-1 sm:hidden">중량(g)</label>
+            <input
+              type="text"
+              value={Math.round(localQuantity * 1000).toLocaleString()}
+              onChange={(e) => {
+                const value = e.target.value.replace(/,/g, "");
+                const numValue = parseFloat(value) || 0;
+                setLocalQuantity(numValue / 1000); // g를 kg로 변환
+                onQuantityChange(numValue / 1000);
+              }}
+              className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+              placeholder="0"
+            />
+            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none sm:top-1/2 sm:translate-y-0">
+              g
+            </span>
+          </div>
 
-        {/* 시리얼/로트No. */}
-        <div className="w-40">
-          <select
-            value={localSerialLot}
-            onChange={(e) => handleSerialLotChange(e.target.value)}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            required
-          >
-            <option value="">선택</option>
-            {serialLotData
-              .filter((item) => {
-                // 드롭다운에서 선택된 실제 원재료 코드로 필터링
-                const actualCode = localMaterial.split("_")[0];
-                return item.code === actualCode;
-              })
-              .map((item, index) => (
-                <option key={index} value={item.serialLot}>
-                  {item.serialLot}
-                </option>
-              ))}
-          </select>
-        </div>
+          {/* 시리얼/로트No. */}
+          <div className="w-full sm:w-40">
+            <label className="block text-xs text-gray-600 mb-1 sm:hidden">시리얼/로트No.</label>
+            <select
+              value={localSerialLot}
+              onChange={(e) => handleSerialLotChange(e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              required
+            >
+              <option value="">선택</option>
+              {serialLotData
+                .filter((item) => {
+                  // 드롭다운에서 선택된 실제 원재료 코드로 필터링
+                  const actualCode = localMaterial.split("_")[0];
+                  return item.code === actualCode;
+                })
+                .map((item, index) => (
+                  <option key={index} value={item.serialLot}>
+                    {item.serialLot}
+                  </option>
+                ))}
+            </select>
+          </div>
 
-        {/* 재고수량 (자동 선택됨) */}
-        <div className="w-32">
-          <div className="px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100 text-center">
-            {localStockQuantity
-              ? (parseFloat(localStockQuantity) * 1000).toLocaleString() + "g"
-              : "자동선택"}
+          {/* 재고수량 (자동 선택됨) */}
+          <div className="w-full sm:w-32">
+            <label className="block text-xs text-gray-600 mb-1 sm:hidden">재고수량</label>
+            <div className="px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100 text-center">
+              {localStockQuantity
+                ? (parseFloat(localStockQuantity) * 1000).toLocaleString() + "g"
+                : "자동선택"}
+            </div>
           </div>
         </div>
 
