@@ -45,11 +45,11 @@ export default function ProductSelector({
         className="relative w-full bg-white border border-gray-300 rounded-lg px-4 py-3 text-left focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         {selectedProduct ? (
-          <span className="block truncate pr-8">
+          <span className="block truncate pr-8 text-gray-900 font-semibold">
             {selectedProduct.productCode}_{selectedProduct.productName}
           </span>
         ) : (
-          <span className="text-gray-600 font-medium">제품을 선택하세요</span>
+          <span className="text-gray-500">제품을 선택하세요</span>
         )}
 
         <span className="absolute right-4 top-1/2 transform -translate-y-1/2">

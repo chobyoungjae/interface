@@ -326,9 +326,11 @@ export default function HomePage() {
             <select
               value={selectedMachine}
               onChange={(e) => setSelectedMachine(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                selectedMachine ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
             >
-              <option value="">호기를 선택하세요</option>
+              <option value="" className="text-gray-500">호기를 선택하세요</option>
               {machines.map((machine) => (
                 <option key={machine} value={machine}>
                   {machine}
@@ -344,9 +346,11 @@ export default function HomePage() {
             <select
               value={selectedAuthor}
               onChange={(e) => setSelectedAuthor(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                selectedAuthor ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
             >
-              <option value="">작성자를 선택하세요</option>
+              <option value="" className="text-gray-500">작성자를 선택하세요</option>
               {authors.map((author) => (
                 <option key={author} value={author}>
                   {author}
@@ -367,7 +371,9 @@ export default function HomePage() {
                 handleWeightChange(parseFloat(value) || 0);
               }}
               placeholder="중량을 입력하세요 (g)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600"
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-500 ${
+                inputWeight > 0 ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
             />
             {selectedProduct && (
               <p className="text-xs text-gray-500 mt-1">
@@ -384,7 +390,9 @@ export default function HomePage() {
               type="date"
               value={productExpiry}
               onChange={(e) => setProductExpiry(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
             />
           </div>
 
@@ -398,7 +406,9 @@ export default function HomePage() {
               onChange={(e) => setProductLot(e.target.value)}
               placeholder="로트 번호 입력"
               maxLength={50}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600"
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-500 ${
+                productLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
             />
           </div>
         </div>

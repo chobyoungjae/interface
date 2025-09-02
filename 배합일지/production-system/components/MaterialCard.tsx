@@ -170,10 +170,12 @@ export default function MaterialCard({
             <select
               value={localSerialLot}
               onChange={(e) => handleSerialLotChange(e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
+              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                localSerialLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
               required
             >
-              <option value="">선택</option>
+              <option value="" className="text-gray-500">선택</option>
               {serialLotData
                 .filter((item) => {
                   // 드롭다운에서 선택된 실제 원재료 코드로 필터링
