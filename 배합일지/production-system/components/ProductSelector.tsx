@@ -49,7 +49,7 @@ export default function ProductSelector({
             {selectedProduct.productCode}_{selectedProduct.productName}
           </span>
         ) : (
-          <span className="text-gray-500">제품을 선택하세요</span>
+          <span className="text-gray-600 font-medium">제품을 선택하세요</span>
         )}
 
         <span className="absolute right-4 top-1/2 transform -translate-y-1/2">
@@ -77,7 +77,7 @@ export default function ProductSelector({
               placeholder="제품 검색..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600"
               autoFocus
             />
           </div>

@@ -156,7 +156,7 @@ export default function MaterialCard({
                 setLocalQuantity(numValue / 1000); // g를 kg로 변환
                 onQuantityChange(numValue / 1000);
               }}
-              className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+              className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
               placeholder="0"
             />
             <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none sm:top-1/2 sm:translate-y-0">
@@ -170,7 +170,7 @@ export default function MaterialCard({
             <select
               value={localSerialLot}
               onChange={(e) => handleSerialLotChange(e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
               required
             >
               <option value="">선택</option>

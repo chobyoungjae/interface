@@ -367,7 +367,7 @@ export default function HomePage() {
                 handleWeightChange(parseFloat(value) || 0);
               }}
               placeholder="중량을 입력하세요 (g)"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600"
             />
             {selectedProduct && (
               <p className="text-xs text-gray-500 mt-1">
@@ -398,7 +398,7 @@ export default function HomePage() {
               onChange={(e) => setProductLot(e.target.value)}
               placeholder="로트 번호 입력"
               maxLength={50}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600"
             />
           </div>
         </div>
