@@ -395,7 +395,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* 세 번째 줄: 로트, 샘플, 작성자 */}
+        {/* 세 번째 줄: 로트, 소비기한, 작성자 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -415,22 +415,16 @@ export default function HomePage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              샘플
+              소비기한
             </label>
-            <select
-              value={sampleType}
-              onChange={(e) => setSampleType(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
-                sampleType ? 'text-gray-900 font-semibold' : 'text-gray-500'
+            <input
+              type="date"
+              value={productExpiry}
+              onChange={(e) => setProductExpiry(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
-            >
-              <option value="" className="text-gray-500">샘플을 선택하세요</option>
-              {sampleTypes.map((sample) => (
-                <option key={sample} value={sample}>
-                  {sample}
-                </option>
-              ))}
-            </select>
+            />
           </div>
 
           <div>
