@@ -26,7 +26,6 @@ export default function HomePage() {
   const [authors, setAuthors] = useState<string[]>([]);
   const [selectedMachine, setSelectedMachine] = useState<string>('');
   const machines = ['1호기', '2호기', '3호기', '4호기', '5호기', '6호기'];
-  const [isExport, setIsExport] = useState<boolean>(false);
   const [sampleType, setSampleType] = useState<string>('');
   const sampleTypes = ['관능_SAMPLE', '업체발송용_SAMPLE'];
   const [calculatedMaterials, setCalculatedMaterials] = useState<Material[]>([]);
@@ -248,7 +247,6 @@ export default function HomePage() {
         productLot,
         author: selectedAuthor,
         machine: selectedMachine,
-        isExport,
         sampleType,
         materials: calculatedMaterials.map(material => ({
           code: material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code,
@@ -278,7 +276,6 @@ export default function HomePage() {
         setProductLot('');
         setSelectedAuthor(''); // 작성자 리셋
         setSelectedMachine(''); // 호기 리셋
-        setIsExport(false); // 수출 체크박스 리셋
         setSampleType(''); // 샘플 드롭다운 리셋
         setCalculatedMaterials([]);
         setMaterialInputs({});
@@ -338,26 +335,9 @@ export default function HomePage() {
         {/* 두 번째 줄: 제품선택, 생산중량, 호기 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="relative">
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700">
-                제품 선택
-              </label>
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="export-checkbox"
-                  checked={isExport}
-                  onChange={(e) => setIsExport(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
-                />
-                <label
-                  htmlFor="export-checkbox"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  수출일 경우 체크
-                </label>
-              </div>
-            </div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              제품 선택
+            </label>
             <ProductSelector
               products={products}
               selectedProduct={selectedProduct}

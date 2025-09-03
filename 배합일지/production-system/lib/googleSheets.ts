@@ -137,7 +137,7 @@ export class GoogleSheetsService {
       const requiredColumns = data.length;
       console.log('필요한 열 수:', requiredColumns);
 
-      // 기본 헤더 정의 (A~L)
+      // 기본 헤더 정의 (A~K)
       const baseHeaders = [
         '타임스탬프',      // A열
         '작성자',         // B열
@@ -149,14 +149,13 @@ export class GoogleSheetsService {
         '소비기한',      // H열
         '제품로트',      // I열
         '시리얼로트',     // J열
-        '샘플',          // K열
-        '수출'           // L열
+        '샘플'           // K열
       ];
 
       // 새 헤더 배열 생성
       const newHeaders = [...baseHeaders];
 
-      // 원재료 헤더를 동적으로 추가 (M열부터)
+      // 원재료 헤더를 동적으로 추가 (L열부터)
       let materialCount = 1;
       while (newHeaders.length < requiredColumns) {
         newHeaders.push(`코드${materialCount}`);

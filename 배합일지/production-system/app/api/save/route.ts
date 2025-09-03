@@ -101,8 +101,7 @@ function flattenProductionData(data: ProductionData): (string | number)[] {
     data.productExpiry,    // H열: 소비기한
     data.productLot,       // I열: 제품로트
     serialLot,             // J열: 시리얼로트 (자동생성)
-    data.sampleType,       // K열: 샘플 유형
-    data.isExport ? '(수출)' : '' // L열: 수출 여부
+    data.sampleType        // K열: 샘플 유형
   ];
 
   data.materials.forEach((material) => {
