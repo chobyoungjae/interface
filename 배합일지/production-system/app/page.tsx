@@ -319,51 +319,52 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <ProductSelector
-            products={products}
-            selectedProduct={selectedProduct}
-            onProductSelect={handleProductSelect}
-          />
-
+        {/* 첫 번째 줄: BOM 기반 배합일지, 소비기한 */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div></div> {/* 빈 공간 */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              호기
+              소비기한
             </label>
-            <select
-              value={selectedMachine}
-              onChange={(e) => setSelectedMachine(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
-                selectedMachine ? 'text-gray-900 font-semibold' : 'text-gray-500'
+            <input
+              type="date"
+              value={productExpiry}
+              onChange={(e) => setProductExpiry(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
-            >
-              <option value="" className="text-gray-500">호기를 선택하세요</option>
-              {machines.map((machine) => (
-                <option key={machine} value={machine}>
-                  {machine}
-                </option>
-              ))}
-            </select>
+            />
           </div>
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              작성자
-            </label>
-            <select
-              value={selectedAuthor}
-              onChange={(e) => setSelectedAuthor(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
-                selectedAuthor ? 'text-gray-900 font-semibold' : 'text-gray-500'
-              }`}
-            >
-              <option value="" className="text-gray-500">작성자를 선택하세요</option>
-              {authors.map((author) => (
-                <option key={author} value={author}>
-                  {author}
-                </option>
-              ))}
-            </select>
+        {/* 두 번째 줄: 제품선택, 생산중량, 호기 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-sm font-medium text-gray-700">
+                제품 선택
+              </label>
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="export-checkbox"
+                  checked={isExport}
+                  onChange={(e) => setIsExport(e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-2"
+                />
+                <label
+                  htmlFor="export-checkbox"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  수출일 경우 체크
+                </label>
+              </div>
+            </div>
+            <ProductSelector
+              products={products}
+              selectedProduct={selectedProduct}
+              onProductSelect={handleProductSelect}
+            />
           </div>
 
           <div>
@@ -391,18 +392,27 @@ export default function HomePage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              소비기한
+              호기
             </label>
-            <input
-              type="date"
-              value={productExpiry}
-              onChange={(e) => setProductExpiry(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
+            <select
+              value={selectedMachine}
+              onChange={(e) => setSelectedMachine(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                selectedMachine ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
-            />
+            >
+              <option value="" className="text-gray-500">호기를 선택하세요</option>
+              {machines.map((machine) => (
+                <option key={machine} value={machine}>
+                  {machine}
+                </option>
+              ))}
+            </select>
           </div>
+        </div>
 
+        {/* 세 번째 줄: 로트, 샘플, 작성자 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               제품 로트
@@ -417,24 +427,6 @@ export default function HomePage() {
                 productLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
             />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="flex items-center">
-            <input
-              type="checkbox"
-              id="export-checkbox"
-              checked={isExport}
-              onChange={(e) => setIsExport(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
-            />
-            <label
-              htmlFor="export-checkbox"
-              className="text-sm font-medium text-gray-700"
-            >
-              수출일 경우 체크
-            </label>
           </div>
 
           <div>
@@ -456,7 +448,28 @@ export default function HomePage() {
               ))}
             </select>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              작성자
+            </label>
+            <select
+              value={selectedAuthor}
+              onChange={(e) => setSelectedAuthor(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                selectedAuthor ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
+            >
+              <option value="" className="text-gray-500">작성자를 선택하세요</option>
+              {authors.map((author) => (
+                <option key={author} value={author}>
+                  {author}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+
 
         {loading && (
           <div className="text-center py-8">

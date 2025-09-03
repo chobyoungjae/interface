@@ -35,10 +35,6 @@ export default function ProductSelector({
 
   return (
     <div className="relative">
-      <label className="block text-sm font-medium text-gray-700 mb-2">
-        제품 선택
-      </label>
-
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

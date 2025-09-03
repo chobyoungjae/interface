@@ -79,6 +79,17 @@ function validateProductionData(data: ProductionData): ValidationError[] {
 }
 
 function flattenProductionData(data: ProductionData): (string | number)[] {
+  // 원재료 중량 합계 계산 (kg → g 변환)
+  const materialTotalWeight = data.materials.reduce((total, material) => 
+    total + (material.calculatedWeight * 1000), 0
+  );
+  
+  // 소비기한을 YY.MM.DD 형식으로 변환 (YYYY-MM-DD → YY.MM.DD)
+  const expiryFormatted = data.productExpiry.substring(2).replace(/-/g, '.');
+  
+  // 시리얼로트 생성 (25.08.09_AA 형식)
+  const serialLot = `${expiryFormatted}_${data.productLot}`;
+  
   const flattened = [
     formatKoreanDateTime(), // A열: 타임스템프
     data.author,           // B열: 작성자
@@ -86,10 +97,12 @@ function flattenProductionData(data: ProductionData): (string | number)[] {
     data.productCode,      // D열: 제품코드
     data.productName,      // E열: 제품명
     data.inputWeight,      // F열: 생산중량 (그램)
-    data.productExpiry,    // G열: 소비기한
-    data.productLot,       // H열: 제품로트
-    data.sampleType,       // I열: 샘플 유형
-    data.isExport ? '수출' : '' // J열: 수출 여부
+    materialTotalWeight,   // G열: 원재료합계 (그램)
+    data.productExpiry,    // H열: 소비기한
+    data.productLot,       // I열: 제품로트
+    serialLot,             // J열: 시리얼로트 (자동생성)
+    data.sampleType,       // K열: 샘플 유형
+    data.isExport ? '(수출)' : '' // L열: 수출 여부
   ];
 
   data.materials.forEach((material) => {

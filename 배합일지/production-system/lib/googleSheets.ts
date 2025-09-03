@@ -133,52 +133,55 @@ export class GoogleSheetsService {
       const sheet = doc.sheetsByTitle["시트1"] || doc.sheetsByIndex[0];
       console.log('사용할 시트:', sheet.title);
 
-      // 헤더 로드 및 확장
-      await sheet.loadHeaderRow();
-      console.log('헤더 로드 완료');
+      // 필요한 열 수 계산
+      const requiredColumns = data.length;
+      console.log('필요한 열 수:', requiredColumns);
 
-      // 현재 헤더 길이 확인 후 필요시 확장
-      const currentHeaders = sheet.headerValues;
-      const requiredColumns = 10 + (data.length - 10); // 기본 10개 (A~J: 타임스탬프, 작성자, 호기, 제품코드, 제품명, 생산중량, 소비기한, 제품로트, 샘플, 수출) + 원재료 데이터
-      console.log('현재 헤더:', currentHeaders);
-      console.log('필요한 열 수:', requiredColumns, '현재 열 수:', currentHeaders.length);
+      // 기본 헤더 정의 (A~L)
+      const baseHeaders = [
+        '타임스탬프',      // A열
+        '작성자',         // B열
+        '호기',          // C열
+        '제품코드',       // D열
+        '제품명',        // E열
+        '생산중량',      // F열
+        '원재료합계',     // G열
+        '소비기한',      // H열
+        '제품로트',      // I열
+        '시리얼로트',     // J열
+        '샘플',          // K열
+        '수출'           // L열
+      ];
 
-      if (currentHeaders.length < requiredColumns) {
-        const newHeaders = [...currentHeaders];
-        
-        // 기본 헤더가 없으면 추가
-        if (newHeaders.length < 10) {
-          const baseHeaders = [
-            '타임스탬프',      // A열
-            '작성자',         // B열
-            '호기',          // C열
-            '제품코드',       // D열
-            '제품명',        // E열
-            '생산중량',      // F열
-            '소비기한',      // G열
-            '제품로트',      // H열
-            '샘플',          // I열
-            '수출'           // J열
-          ];
-          
-          for (let i = newHeaders.length; i < 10; i++) {
-            newHeaders.push(baseHeaders[i]);
-          }
-        }
+      // 새 헤더 배열 생성
+      const newHeaders = [...baseHeaders];
 
-        // 원재료 헤더를 동적으로 추가
-        let materialCount = Math.floor((currentHeaders.length - 10) / 4) + 1;
-        while (newHeaders.length < requiredColumns) {
-          newHeaders.push(`코드${materialCount}`);
-          newHeaders.push(`원재료명${materialCount}`);
-          newHeaders.push(`중량${materialCount}`);
-          newHeaders.push(`시리얼로트${materialCount}`);
-          materialCount++;
-        }
+      // 원재료 헤더를 동적으로 추가 (M열부터)
+      let materialCount = 1;
+      while (newHeaders.length < requiredColumns) {
+        newHeaders.push(`코드${materialCount}`);
+        newHeaders.push(`원재료명${materialCount}`);
+        newHeaders.push(`중량${materialCount}`);
+        newHeaders.push(`시리얼로트${materialCount}`);
+        materialCount++;
+      }
 
-        console.log('새 헤더 설정:', newHeaders);
+      console.log('설정할 헤더:', newHeaders);
+      
+      try {
+        // 헤더를 강제로 설정 (기존 헤더 무시)
         await sheet.setHeaderRow(newHeaders);
-        console.log('헤더 확장 완료');
+        console.log('헤더 설정 완료');
+      } catch (headerError) {
+        console.error('헤더 설정 실패:', headerError);
+        // 헤더 설정에 실패하면 첫 번째 행을 직접 업데이트
+        await sheet.loadCells(`A1:${String.fromCharCode(65 + newHeaders.length - 1)}1`);
+        for (let i = 0; i < newHeaders.length; i++) {
+          const cell = sheet.getCell(0, i);
+          cell.value = newHeaders[i];
+        }
+        await sheet.saveUpdatedCells();
+        console.log('헤더 직접 설정 완료');
       }
 
       console.log('행 추가 시작');
