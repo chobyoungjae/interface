@@ -122,24 +122,52 @@ export class GoogleSheetsService {
 
   async saveProductionData(data: unknown[]): Promise<void> {
     try {
+      console.log('저장할 데이터:', data);
+      console.log('스프레드시트 ID:', process.env.STORAGE_SPREADSHEET_ID);
+      
       const doc = await this.authenticateDoc(
         process.env.STORAGE_SPREADSHEET_ID!
       );
+      console.log('인증 성공, 스프레드시트 제목:', doc.title);
 
       const sheet = doc.sheetsByTitle["시트1"] || doc.sheetsByIndex[0];
+      console.log('사용할 시트:', sheet.title);
 
       // 헤더 로드 및 확장
       await sheet.loadHeaderRow();
+      console.log('헤더 로드 완료');
 
       // 현재 헤더 길이 확인 후 필요시 확장
       const currentHeaders = sheet.headerValues;
-      const requiredColumns = 7 + (data.length - 7); // 기본 7개 + 원재료 데이터
+      const requiredColumns = 10 + (data.length - 10); // 기본 10개 (A~J: 타임스탬프, 작성자, 호기, 제품코드, 제품명, 생산중량, 소비기한, 제품로트, 샘플, 수출) + 원재료 데이터
+      console.log('현재 헤더:', currentHeaders);
+      console.log('필요한 열 수:', requiredColumns, '현재 열 수:', currentHeaders.length);
 
       if (currentHeaders.length < requiredColumns) {
         const newHeaders = [...currentHeaders];
+        
+        // 기본 헤더가 없으면 추가
+        if (newHeaders.length < 10) {
+          const baseHeaders = [
+            '타임스탬프',      // A열
+            '작성자',         // B열
+            '호기',          // C열
+            '제품코드',       // D열
+            '제품명',        // E열
+            '생산중량',      // F열
+            '소비기한',      // G열
+            '제품로트',      // H열
+            '샘플',          // I열
+            '수출'           // J열
+          ];
+          
+          for (let i = newHeaders.length; i < 10; i++) {
+            newHeaders.push(baseHeaders[i]);
+          }
+        }
 
         // 원재료 헤더를 동적으로 추가
-        let materialCount = Math.floor((currentHeaders.length - 7) / 4) + 1;
+        let materialCount = Math.floor((currentHeaders.length - 10) / 4) + 1;
         while (newHeaders.length < requiredColumns) {
           newHeaders.push(`코드${materialCount}`);
           newHeaders.push(`원재료명${materialCount}`);
@@ -148,10 +176,14 @@ export class GoogleSheetsService {
           materialCount++;
         }
 
+        console.log('새 헤더 설정:', newHeaders);
         await sheet.setHeaderRow(newHeaders);
+        console.log('헤더 확장 완료');
       }
 
+      console.log('행 추가 시작');
       await sheet.addRow(data as unknown as Record<string, string | number>);
+      console.log('행 추가 완료');
     } catch (error) {
       console.error("생산 데이터 저장 실패:", error);
       throw new Error("생산 데이터를 저장하는 중 오류가 발생했습니다.");
