@@ -8,7 +8,7 @@ export function formatKoreanDateTime(date: Date = new Date()): string {
 
   // 오전/오후 판별
   const period = hours < 12 ? "오전" : "오후";
-  const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours === 12 ? 12 : hours;
 
   return `${year}. ${month}. ${day} ${period} ${displayHours}:${minutes}:${seconds}`;
 }

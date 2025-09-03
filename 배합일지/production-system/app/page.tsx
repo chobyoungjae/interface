@@ -298,21 +298,27 @@ export default function HomePage() {
         <CompanyInfoBanner onDateMismatch={() => setShowDateMismatchModal(true)} />
         
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        {/* 제목과 소비기한을 같은 라인에 배치 */}
+        {/* 제목과 샘플을 같은 라인에 배치 */}
         <div className="flex items-end justify-between mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">BOM 기반 배합일지</h1>
-          <div className="w-72">
+          <div className="w-80">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              소비기한
+              샘플
             </label>
-            <input
-              type="date"
-              value={productExpiry}
-              onChange={(e) => setProductExpiry(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
+            <select
+              value={sampleType}
+              onChange={(e) => setSampleType(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                sampleType ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
-            />
+            >
+              <option value="" className="text-gray-500">샘플을 선택하세요</option>
+              {sampleTypes.map((sample) => (
+                <option key={sample} value={sample}>
+                  {sample}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
