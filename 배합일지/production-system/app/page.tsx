@@ -301,7 +301,23 @@ export default function HomePage() {
         <CompanyInfoBanner onDateMismatch={() => setShowDateMismatchModal(true)} />
         
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">BOM 기반 배합일지</h1>
+        {/* 제목과 소비기한을 같은 라인에 배치 */}
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">BOM 기반 배합일지</h1>
+          <div className="w-72">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              소비기한
+            </label>
+            <input
+              type="date"
+              value={productExpiry}
+              onChange={(e) => setProductExpiry(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
+            />
+          </div>
+        </div>
 
         {errors.length > 0 && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -318,24 +334,6 @@ export default function HomePage() {
             <p className="text-green-700 text-sm">{successMessage}</p>
           </div>
         )}
-
-        {/* 첫 번째 줄: BOM 기반 배합일지, 소비기한 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div></div> {/* 빈 공간 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              소비기한
-            </label>
-            <input
-              type="date"
-              value={productExpiry}
-              onChange={(e) => setProductExpiry(e.target.value)}
-              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                productExpiry ? 'text-gray-900 font-semibold' : 'text-gray-500'
-              }`}
-            />
-          </div>
-        </div>
 
         {/* 두 번째 줄: 제품선택, 생산중량, 호기 */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
