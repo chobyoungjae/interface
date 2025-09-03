@@ -30,6 +30,8 @@ export interface ProductionData {
   productLot: string;
   author: string;
   machine: string; // 호기 필드 추가
+  isExport: boolean; // 수출 체크박스 필드
+  sampleType: string; // 샘플 드롭다운 필드
   materials: Array<{
     code: string;
     name: string;

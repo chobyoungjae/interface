@@ -26,6 +26,9 @@ export default function HomePage() {
   const [authors, setAuthors] = useState<string[]>([]);
   const [selectedMachine, setSelectedMachine] = useState<string>('');
   const machines = ['1호기', '2호기', '3호기', '4호기', '5호기', '6호기'];
+  const [isExport, setIsExport] = useState<boolean>(false);
+  const [sampleType, setSampleType] = useState<string>('');
+  const sampleTypes = ['관능_SAMPLE', '업체발송용_SAMPLE'];
   const [calculatedMaterials, setCalculatedMaterials] = useState<Material[]>([]);
   const [materialInputs, setMaterialInputs] = useState<Record<string, { serialLot: string; stockQuantity: string; quantity: number }>>({});
   const [serialLotData, setSerialLotData] = useState<{code: string, serialLot: string, stockQuantity: string}[]>([]);
@@ -245,6 +248,8 @@ export default function HomePage() {
         productLot,
         author: selectedAuthor,
         machine: selectedMachine,
+        isExport,
+        sampleType,
         materials: calculatedMaterials.map(material => ({
           code: material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code,
           name: material.name || '',
@@ -273,6 +278,8 @@ export default function HomePage() {
         setProductLot('');
         setSelectedAuthor(''); // 작성자 리셋
         setSelectedMachine(''); // 호기 리셋
+        setIsExport(false); // 수출 체크박스 리셋
+        setSampleType(''); // 샘플 드롭다운 리셋
         setCalculatedMaterials([]);
         setMaterialInputs({});
         
@@ -410,6 +417,44 @@ export default function HomePage() {
                 productLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
             />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="export-checkbox"
+              checked={isExport}
+              onChange={(e) => setIsExport(e.target.checked)}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mr-3"
+            />
+            <label
+              htmlFor="export-checkbox"
+              className="text-sm font-medium text-gray-700"
+            >
+              수출일 경우 체크
+            </label>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              샘플
+            </label>
+            <select
+              value={sampleType}
+              onChange={(e) => setSampleType(e.target.value)}
+              className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white ${
+                sampleType ? 'text-gray-900 font-semibold' : 'text-gray-500'
+              }`}
+            >
+              <option value="" className="text-gray-500">샘플을 선택하세요</option>
+              {sampleTypes.map((sample) => (
+                <option key={sample} value={sample}>
+                  {sample}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 

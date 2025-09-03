@@ -76,15 +76,19 @@ function validateProductionData(data: ProductionData): ValidationError[] {
 }
 
 function flattenProductionData(data: ProductionData): (string | number)[] {
+  // 제품명에 수출 표시 추가 (체크된 경우)
+  const productNameWithExport = data.isExport ? `${data.productName}(수출)` : data.productName;
+  
   const flattened = [
     formatKoreanDateTime(), // A열: 타임스템프
     data.author,           // B열: 작성자
     data.machine,          // C열: 호기
     data.productCode,      // D열: 제품코드
-    data.productName,      // E열: 제품명
+    productNameWithExport, // E열: 제품명 (수출 표시 포함)
     data.inputWeight,      // F열: 생산중량 (그램)
     data.productExpiry,    // G열: 소비기한
-    data.productLot        // H열: 제품로트
+    data.productLot,       // H열: 제품로트
+    data.sampleType        // I열: 샘플 유형
   ];
 
   data.materials.forEach((material) => {
