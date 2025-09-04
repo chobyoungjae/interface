@@ -298,18 +298,18 @@ export default function HomePage() {
         <CompanyInfoBanner onDateMismatch={() => setShowDateMismatchModal(true)} />
         
       <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
-        {/* 로고 추가 */}
-        <div className="flex items-center mb-4">
-          <img 
-            src="/ver1.ico" 
-            alt="미쓰리 로고" 
-            className="h-8 w-8 mr-3"
-          />
-        </div>
-        
         {/* 제목과 샘플을 같은 라인에 배치 */}
         <div className="flex items-end justify-between mb-4 sm:mb-6">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">미쓰리 BOM 기반 배합일지</h1>
+          <div>
+            <div className="flex items-center mb-1">
+              <img 
+                src="/ver1.ico" 
+                alt="미쓰리 로고" 
+                className="h-6 w-6 mr-2"
+              />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">미쓰리 BOM 기반 배합일지</h1>
+          </div>
           <div className="w-80">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               샘플

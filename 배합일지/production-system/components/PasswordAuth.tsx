@@ -51,11 +51,11 @@ export default function PasswordAuth({ children }: PasswordAuthProps) {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center">
-            <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+            <div className="mx-auto mb-6">
               <img 
-                src="/ver1.ico" 
+                src="/미쓰리 로고.ico" 
                 alt="미쓰리 로고" 
-                className="h-8 w-8"
+                className="h-16 w-16 mx-auto"
               />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">미쓰리 BOM 기반 배합일지</h2>
