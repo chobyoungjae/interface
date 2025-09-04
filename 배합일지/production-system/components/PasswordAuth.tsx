@@ -52,13 +52,15 @@ export default function PasswordAuth({ children }: PasswordAuthProps) {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center">
             <div className="mx-auto h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
-              <svg className="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <img 
+                src="/ver1.ico" 
+                alt="미쓰리 로고" 
+                className="h-8 w-8"
+              />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">BOM 기반 배합일지</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">미쓰리 BOM 기반 배합일지</h2>
             <p className="text-gray-600 mb-8">
-              BOM 기반 배합일지에 접속하려면 비밀번호를 입력하세요
+              미쓰리 BOM 기반 배합일지에 접속하려면 비밀번호를 입력하세요
             </p>
           </div>
 
