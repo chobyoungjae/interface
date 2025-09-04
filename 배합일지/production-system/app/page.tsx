@@ -305,7 +305,7 @@ export default function HomePage() {
               <img 
                 src="/ver1.ico" 
                 alt="미쓰리 로고" 
-                className="h-6 w-6 mr-2"
+                className="h-12 w-12 mr-2"
               />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">미쓰리 BOM 기반 배합일지</h1>
