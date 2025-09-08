@@ -159,8 +159,8 @@ export default function HomePage() {
     
     if (!originalMaterial || !originalInputs) return;
 
-    // 새로운 고유한 키 생성 (materialCode + timestamp)
-    const newKey = `${materialCode}_copy_${Date.now()}`;
+    // 새로운 고유한 키 생성 (materialCode + timestamp + random)
+    const newKey = `${materialCode}_copy_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // 복사된 원재료를 calculatedMaterials에 추가
     setCalculatedMaterials(prev => [...prev, {
@@ -168,10 +168,14 @@ export default function HomePage() {
       code: newKey // 고유 키로 변경
     }]);
 
-    // 복사된 입력값을 materialInputs에 추가
+    // 복사된 입력값을 materialInputs에 추가 (시리얼로트는 초기화)
     setMaterialInputs(prev => ({
       ...prev,
-      [newKey]: { ...originalInputs }
+      [newKey]: { 
+        ...originalInputs,
+        serialLot: '', // 복사시 시리얼로트 초기화
+        stockQuantity: '' // 복사시 재고수량 초기화
+      }
     }));
   };
 
@@ -504,7 +508,7 @@ export default function HomePage() {
             <div className="space-y-2 mb-6">
               {calculatedMaterials.map((material, index) => (
                 <MaterialCard
-                  key={`${material.code}_${index}`}
+                  key={material.code} // 고유한 material.code를 키로 사용
                   code={material.code.includes('_copy_') ? material.code.split('_copy_')[0] : material.code}
                   name={material.name || ''}
                   quantity={materialInputs[material.code]?.quantity || material.quantity}

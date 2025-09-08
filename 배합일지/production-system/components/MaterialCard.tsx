@@ -49,7 +49,7 @@ export default function MaterialCard({
     }
   }, [localSerialLot, serialLot, onSerialLotChange]);
 
-  // quantity prop이 변경될 때 로컬 상태 업데이트
+  // quantity prop이 변경될 때 로컬 상태 업데이트 (초기화시에만)
   useEffect(() => {
     setLocalQuantity(quantity);
   }, [quantity]);
@@ -150,15 +150,22 @@ export default function MaterialCard({
             <label className="block text-xs text-gray-600 mb-1 sm:hidden">중량(g)</label>
             <input
               type="text"
-              value={Math.round(localQuantity * 1000).toLocaleString()}
+              value={localQuantity > 0 ? Math.round(localQuantity * 1000).toLocaleString() : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, "");
-                const numValue = parseFloat(value) || 0;
-                setLocalQuantity(numValue / 1000); // g를 kg로 변환
-                onQuantityChange(numValue / 1000);
+                if (value === '') {
+                  setLocalQuantity(0);
+                  onQuantityChange(0);
+                } else {
+                  const numValue = parseFloat(value) || 0;
+                  setLocalQuantity(numValue / 1000); // g를 kg로 변환
+                  onQuantityChange(numValue / 1000);
+                }
               }}
               className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
               placeholder="0"
+              inputMode="numeric"
+              pattern="[0-9,]*"
             />
             <span className="absolute right-2 bottom-0.5 text-xs text-gray-500 pointer-events-none">
               g
