@@ -130,20 +130,21 @@ export default function MaterialCard({
               const newName = nameParts.join("_");
               onMaterialChange(newCode, newName);
             }}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white"
+            className="w-full pl-2 pr-8 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white"
             style={{
               backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'right 8px center',
               backgroundSize: '16px',
-              paddingRight: '32px'
+              textAlign: 'right',
+              direction: 'rtl'
             }}
           >
-            <option value={localMaterial}>{localMaterial}</option>
+            <option value={localMaterial} style={{textAlign: 'right', direction: 'ltr'}}>{localMaterial}</option>
             {allMaterials
               .filter((m) => m.fullName !== localMaterial)
               .map((material) => (
-                <option key={material.code} value={material.fullName}>
+                <option key={material.code} value={material.fullName} style={{textAlign: 'right', direction: 'ltr'}}>
                   {material.fullName}
                 </option>
               ))}
@@ -160,42 +161,40 @@ export default function MaterialCard({
               value={localQuantity > 0 ? Math.round(localQuantity * 1000).toLocaleString() : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, "");
+                
+                // 빈 값이거나 0인 경우
+                if (value === '' || value === '0' || value === null || value === undefined) {
+                  setLocalQuantity(0);
+                  onQuantityChange(0);
+                  return;
+                }
+                
+                // 숫자가 아닌 값이 들어온 경우 무시
+                if (!/^[0-9]*$/.test(value)) {
+                  return;
+                }
+                
+                const numValue = parseInt(value, 10) || 0;
+                setLocalQuantity(numValue / 1000); // g를 kg로 변환
+                onQuantityChange(numValue / 1000);
+              }}
+              onBlur={(e) => {
+                // 포커스를 잃을 때 빈 값이면 0으로 설정
+                const value = e.target.value.replace(/,/g, '');
                 if (value === '' || value === '0') {
                   setLocalQuantity(0);
                   onQuantityChange(0);
-                } else {
-                  const numValue = parseFloat(value) || 0;
-                  setLocalQuantity(numValue / 1000); // g를 kg로 변환
-                  onQuantityChange(numValue / 1000);
                 }
               }}
-              onKeyDown={(e) => {
-                // 백스페이스나 Delete 키로 전체 삭제
-                if (e.key === 'Backspace' || e.key === 'Delete') {
-                  const target = e.target as HTMLInputElement;
-                  const value = target.value.replace(/,/g, '');
-                  
-                  // Ctrl+A 또는 전체 선택된 상태에서 백스페이스
-                  if (target.selectionStart === 0 && target.selectionEnd === target.value.length) {
-                    e.preventDefault();
-                    setLocalQuantity(0);
-                    onQuantityChange(0);
-                  }
-                  // 마지막 숫자 하나만 남은 상태에서 백스페이스
-                  else if (value.length === 1) {
-                    e.preventDefault();
-                    setLocalQuantity(0);
-                    onQuantityChange(0);
-                  }
-                }
-              }}
-              className="w-full px-2 py-1 pr-8 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
+              className="w-full pl-2 pr-8 py-1 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
               placeholder="0"
               inputMode="numeric"
-              pattern="[0-9,]*"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck="false"
             />
             <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none">
-              g
+               g
             </span>
           </div>
 
@@ -205,7 +204,7 @@ export default function MaterialCard({
             <select
               value={localSerialLot}
               onChange={(e) => handleSerialLotChange(e.target.value)}
-              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white ${
+              className={`w-full pl-2 pr-8 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white ${
                 localSerialLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
               style={{
@@ -213,11 +212,12 @@ export default function MaterialCard({
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'right 8px center',
                 backgroundSize: '16px',
-                paddingRight: '32px'
+                textAlign: 'right',
+                direction: 'rtl'
               }}
               required
             >
-              <option value="" className="text-gray-500">선택</option>
+              <option value="" className="text-gray-500" style={{textAlign: 'right', direction: 'ltr'}}>선택</option>
               {serialLotData
                 .filter((item) => {
                   // 드롭다운에서 선택된 실제 원재료 코드로 필터링
@@ -225,7 +225,7 @@ export default function MaterialCard({
                   return item.code === actualCode;
                 })
                 .map((item, index) => (
-                  <option key={index} value={item.serialLot}>
+                  <option key={index} value={item.serialLot} style={{textAlign: 'right', direction: 'ltr'}}>
                     {item.serialLot}
                   </option>
                 ))}
