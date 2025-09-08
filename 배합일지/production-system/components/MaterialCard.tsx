@@ -130,7 +130,14 @@ export default function MaterialCard({
               const newName = nameParts.join("_");
               onMaterialChange(newCode, newName);
             }}
-            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right"
+            className="w-full px-2 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white"
+            style={{
+              backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'right 8px center',
+              backgroundSize: '16px',
+              paddingRight: '32px'
+            }}
           >
             <option value={localMaterial}>{localMaterial}</option>
             {allMaterials
@@ -153,7 +160,7 @@ export default function MaterialCard({
               value={localQuantity > 0 ? Math.round(localQuantity * 1000).toLocaleString() : ''}
               onChange={(e) => {
                 const value = e.target.value.replace(/,/g, "");
-                if (value === '') {
+                if (value === '' || value === '0') {
                   setLocalQuantity(0);
                   onQuantityChange(0);
                 } else {
@@ -162,12 +169,32 @@ export default function MaterialCard({
                   onQuantityChange(numValue / 1000);
                 }
               }}
-              className="w-full px-2 py-1 pr-6 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
+              onKeyDown={(e) => {
+                // 백스페이스나 Delete 키로 전체 삭제
+                if (e.key === 'Backspace' || e.key === 'Delete') {
+                  const target = e.target as HTMLInputElement;
+                  const value = target.value.replace(/,/g, '');
+                  
+                  // Ctrl+A 또는 전체 선택된 상태에서 백스페이스
+                  if (target.selectionStart === 0 && target.selectionEnd === target.value.length) {
+                    e.preventDefault();
+                    setLocalQuantity(0);
+                    onQuantityChange(0);
+                  }
+                  // 마지막 숫자 하나만 남은 상태에서 백스페이스
+                  else if (value.length === 1) {
+                    e.preventDefault();
+                    setLocalQuantity(0);
+                    onQuantityChange(0);
+                  }
+                }
+              }}
+              className="w-full px-2 py-1 pr-8 border border-gray-300 rounded text-sm font-bold text-blue-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right placeholder:text-gray-600"
               placeholder="0"
               inputMode="numeric"
               pattern="[0-9,]*"
             />
-            <span className="absolute right-2 bottom-0.5 text-xs text-gray-500 pointer-events-none">
+            <span className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500 pointer-events-none">
               g
             </span>
           </div>
@@ -178,9 +205,16 @@ export default function MaterialCard({
             <select
               value={localSerialLot}
               onChange={(e) => handleSerialLotChange(e.target.value)}
-              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right ${
+              className={`w-full px-2 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-right appearance-none bg-white ${
                 localSerialLot ? 'text-gray-900 font-semibold' : 'text-gray-500'
               }`}
+              style={{
+                backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'right 8px center',
+                backgroundSize: '16px',
+                paddingRight: '32px'
+              }}
               required
             >
               <option value="" className="text-gray-500">선택</option>
@@ -203,7 +237,7 @@ export default function MaterialCard({
             <label className="block text-xs text-gray-600 mb-1 sm:hidden">재고수량</label>
             <div className="px-2 py-1 border border-gray-300 rounded text-sm bg-gray-100 text-right text-gray-900 font-semibold">
               {localStockQuantity
-                ? (parseFloat(localStockQuantity) * 1000).toLocaleString() + "g"
+                ? (parseFloat(localStockQuantity) * 1000).toLocaleString() + " g"
                 : "자동선택"}
             </div>
           </div>
