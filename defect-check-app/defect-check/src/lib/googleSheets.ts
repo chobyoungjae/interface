@@ -70,16 +70,18 @@ export class GoogleSheetsService {
         return [];
       }
 
-      // 2. 저장 시트에서 기초코드 가져오기 (A열: 코드, D열: 카테고리)
+      // 2. 저장 시트에서 기초코드 가져오기 (헤더 2행, A열: 품목코드, D열: 규격정보)
       const storageDoc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
       const categorySheet = storageDoc.sheetsByTitle["기초코드"];
 
       const categoryMap = new Map<string, string>();
       if (categorySheet) {
+        // 헤더가 2행에 있으므로 2행을 헤더로 설정
+        await categorySheet.loadHeaderRow(2);
         const categoryRows = await categorySheet.getRows();
         categoryRows.forEach((row) => {
-          const code = row.get("A") || row.get("코드") || "";
-          const category = row.get("D") || row.get("카테고리") || "";
+          const code = row.get("품목코드") || "";
+          const category = row.get("규격정보") || "";
           if (code && category) {
             categoryMap.set(code, category);
           }
