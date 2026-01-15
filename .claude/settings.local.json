@@ -8,7 +8,9 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(npm run dev:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npx create-next-app@latest defect-check --typescript --tailwind --eslint --app --src-dir --no-import-alias --use-npm --turbopack)"
     ],
     "deny": [],
     "ask": []
