@@ -285,7 +285,7 @@ export default function Home() {
               <option value="">선택하세요</option>
               {products.map((product) => (
                 <option key={product.productCode} value={product.productCode}>
-                  {product.productCode} / {product.productName}
+                  {product.productCode} / {product.productName}{product.category ? ` [${product.category}]` : ""}
                 </option>
               ))}
             </select>

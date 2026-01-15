@@ -58,15 +58,32 @@ export class GoogleSheetsService {
     }
   }
 
-  // 생산품 목록 조회 (BOM 시트 > 시트2)
+  // 생산품 목록 조회 (BOM 시트 > 시트2 + 저장 시트 > 기초코드)
   async readProductsData(): Promise<Product[]> {
     try {
-      const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
-      const sheet = doc.sheetsByTitle["시트2"];
+      // 1. BOM 시트에서 생산품 목록 가져오기
+      const bomDoc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
+      const sheet = bomDoc.sheetsByTitle["시트2"];
 
       if (!sheet) {
         console.warn("시트2를 찾을 수 없습니다.");
         return [];
+      }
+
+      // 2. 저장 시트에서 기초코드 가져오기 (A열: 코드, D열: 카테고리)
+      const storageDoc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const categorySheet = storageDoc.sheetsByTitle["기초코드"];
+
+      const categoryMap = new Map<string, string>();
+      if (categorySheet) {
+        const categoryRows = await categorySheet.getRows();
+        categoryRows.forEach((row) => {
+          const code = row.get("A") || row.get("코드") || "";
+          const category = row.get("D") || row.get("카테고리") || "";
+          if (code && category) {
+            categoryMap.set(code, category);
+          }
+        });
       }
 
       const rows = await sheet.getRows();
@@ -78,9 +95,13 @@ export class GoogleSheetsService {
 
         // 중복 제거: 코드 기준
         if (productCode && productName && !productsMap.has(productCode)) {
+          // 기초코드 시트에서 카테고리 찾기
+          const category = categoryMap.get(productCode) || "";
+
           productsMap.set(productCode, {
             productCode,
             productName,
+            category,
           });
         }
       });

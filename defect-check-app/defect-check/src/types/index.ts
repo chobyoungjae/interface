@@ -2,6 +2,7 @@
 export interface Product {
   productCode: string;    // A열: 생산품목코드
   productName: string;    // B열: 생산품목명
+  category: string;       // 기초코드 시트 D열: 카테고리
 }
 
 // 포장지/박스 정보 (BOM 시트2에서 가져옴)
