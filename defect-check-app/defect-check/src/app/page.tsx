@@ -43,6 +43,7 @@ const KEYWORD_OPTIONS = [
   "김치",
   "닭",
   "짬뽕",
+  "미쓰리",
 ] as const;
 
 export default function Home() {
@@ -238,9 +239,18 @@ export default function Home() {
     e.preventDefault();
     setError("");
 
+    // 불량 등록(로스)에 값이 있는지 확인
+    const hasLossData = lossData.productionLoss !== "" || lossData.mixingLoss !== "";
+
     // 필수 필드 검증
-    if (!selectedWorker || !selectedLine || !selectedProduct) {
-      setError("작업자, 라인, 생산품을 선택해주세요.");
+    // 로스 데이터가 있으면 작업자만 필수, 없으면 작업자+라인+생산품 필수
+    if (!selectedWorker) {
+      setError("작업자를 선택해주세요.");
+      return;
+    }
+
+    if (!hasLossData && (!selectedLine || !selectedProduct)) {
+      setError("라인, 생산품을 선택하거나, 불량 등록(로스)을 입력해주세요.");
       return;
     }
 
@@ -248,9 +258,9 @@ export default function Home() {
 
     const data: DefectCheckData = {
       worker: selectedWorker,
-      line: selectedLine,
-      productCode: selectedProduct.productCode,
-      productName: selectedProduct.productName,
+      line: selectedLine || "",
+      productCode: selectedProduct?.productCode || "",
+      productName: selectedProduct?.productName || "",
       packagingCode: packaging?.code || "",
       packagingName: packaging?.name || "",
       packagingLot: selectedLot,
