@@ -176,12 +176,22 @@ export class GoogleSheetsService {
       await sheet.loadHeaderRow(2);
       const rows = await sheet.getRows();
 
+      // 디버깅: 헤더 목록 출력
+      console.log("시리얼로트 시트 헤더:", sheet.headerValues);
+      console.log("검색 포장지코드:", packagingCode);
+      console.log("총 행 수:", rows.length);
+
       const lots: SerialLot[] = [];
-      rows.forEach((row) => {
+      rows.forEach((row, index) => {
         const code = row.get("품목코드") || "";
         const productName = row.get("제품명") || "";
         const lotNumber = row.get("시리얼/로트No.") || "";
         const stockQuantity = row.get("재고수량") || "";
+
+        // 디버깅: 처음 5행 출력
+        if (index < 5) {
+          console.log(`행 ${index}: 품목코드=${code}, 로트=${lotNumber}`);
+        }
 
         // 포장지 코드와 매칭되는 모든 로트 반환
         if (code === packagingCode && lotNumber) {
@@ -193,6 +203,8 @@ export class GoogleSheetsService {
           });
         }
       });
+
+      console.log("매칭된 로트 수:", lots.length);
 
       return lots;
     } catch (error) {
