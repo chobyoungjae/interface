@@ -9,20 +9,40 @@ import {
   LINE_OPTIONS,
 } from "@/types";
 
-// 맛 옵션 (제품명에서 추출)
+// 맛 옵션 (제품명에서 추출) - "맛" 글자 제외
 const FLAVOR_OPTIONS = [
   "전체",
-  "순한맛",
-  "단짠맛",
-  "보통맛",
-  "매콤한맛",
-  "매운맛",
-  "불맛",
-  "카레맛",
-  "짜장맛",
+  "오리지널",
+  "순한",
+  "단짠",
+  "보통",
+  "매콤한",
+  "매운",
+  "불",
+  "카레",
+  "짜장",
   "로제",
   "마라",
   "궁중",
+] as const;
+
+// 키워드 옵션 (브랜드/제품 특성)
+const KEYWORD_OPTIONS = [
+  "전체",
+  "떡군이",
+  "불스",
+  "엄청난",
+  "홈즈",
+  "와플칸",
+  "순수",
+  "오부장",
+  "원달러",
+  "시장",
+  "한둘",
+  "마법",
+  "김치",
+  "닭",
+  "짬뽕",
 ] as const;
 
 export default function Home() {
@@ -35,6 +55,7 @@ export default function Home() {
   const [selectedWorker, setSelectedWorker] = useState("");
   const [selectedLine, setSelectedLine] = useState("");
   const [selectedFlavor, setSelectedFlavor] = useState("전체");
+  const [selectedKeyword, setSelectedKeyword] = useState("전체");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedLot, setSelectedLot] = useState("");
 
@@ -69,13 +90,22 @@ export default function Home() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // 맛으로 필터링된 제품 목록
+  // 맛 + 키워드로 필터링된 제품 목록
   const filteredProducts = useMemo(() => {
-    if (selectedFlavor === "전체") {
-      return products;
+    let filtered = products;
+
+    // 맛 필터
+    if (selectedFlavor !== "전체") {
+      filtered = filtered.filter((p) => p.productName.includes(selectedFlavor));
     }
-    return products.filter((p) => p.productName.includes(selectedFlavor));
-  }, [products, selectedFlavor]);
+
+    // 키워드 필터
+    if (selectedKeyword !== "전체") {
+      filtered = filtered.filter((p) => p.productName.includes(selectedKeyword));
+    }
+
+    return filtered;
+  }, [products, selectedFlavor, selectedKeyword]);
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -107,14 +137,14 @@ export default function Home() {
     fetchInitialData();
   }, []);
 
-  // 맛 변경 시 선택된 제품 초기화
+  // 맛/키워드 변경 시 선택된 제품 초기화
   useEffect(() => {
     setSelectedProduct(null);
     setPackaging(null);
     setBox(null);
     setSerialLots([]);
     setSelectedLot("");
-  }, [selectedFlavor]);
+  }, [selectedFlavor, selectedKeyword]);
 
   // 생산품 선택 시 포장지/박스 자동 조회
   useEffect(() => {
@@ -212,6 +242,7 @@ export default function Home() {
     setSelectedWorker("");
     setSelectedLine("");
     setSelectedFlavor("전체");
+    setSelectedKeyword("전체");
     setSelectedProduct(null);
     setSelectedLot("");
     setPackaging(null);
@@ -309,22 +340,45 @@ export default function Home() {
             </select>
           </div>
 
-          {/* 3. 맛 선택 */}
+          {/* 3. 맛 선택 + 키워드 */}
           <div className="bg-white p-4 rounded-lg shadow">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              3. 맛 선택
-            </label>
-            <select
-              value={selectedFlavor}
-              onChange={(e) => setSelectedFlavor(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              {FLAVOR_OPTIONS.map((flavor) => (
-                <option key={flavor} value={flavor}>
-                  {flavor} {flavor !== "전체" && `(${products.filter(p => p.productName.includes(flavor)).length}개)`}
-                </option>
-              ))}
-            </select>
+            <div className="grid grid-cols-2 gap-4">
+              {/* 맛 선택 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  3. 맛 선택
+                </label>
+                <select
+                  value={selectedFlavor}
+                  onChange={(e) => setSelectedFlavor(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  {FLAVOR_OPTIONS.map((flavor) => (
+                    <option key={flavor} value={flavor}>
+                      {flavor} {flavor !== "전체" && `(${products.filter(p => p.productName.includes(flavor)).length})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 키워드 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  키워드
+                </label>
+                <select
+                  value={selectedKeyword}
+                  onChange={(e) => setSelectedKeyword(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                >
+                  {KEYWORD_OPTIONS.map((keyword) => (
+                    <option key={keyword} value={keyword}>
+                      {keyword} {keyword !== "전체" && `(${products.filter(p => p.productName.includes(keyword)).length})`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           {/* 4. 생산품 선택 */}
