@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Product,
   PackagingItem,
@@ -8,6 +8,22 @@ import {
   DefectCheckData,
   LINE_OPTIONS,
 } from "@/types";
+
+// 맛 옵션 (제품명에서 추출)
+const FLAVOR_OPTIONS = [
+  "전체",
+  "순한맛",
+  "단짠맛",
+  "보통맛",
+  "매콤한맛",
+  "매운맛",
+  "불맛",
+  "카레맛",
+  "짜장맛",
+  "로제",
+  "마라",
+  "궁중",
+] as const;
 
 export default function Home() {
   // 드롭다운 데이터
@@ -18,6 +34,7 @@ export default function Home() {
   // 선택된 값들
   const [selectedWorker, setSelectedWorker] = useState("");
   const [selectedLine, setSelectedLine] = useState("");
+  const [selectedFlavor, setSelectedFlavor] = useState("전체");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedLot, setSelectedLot] = useState("");
 
@@ -52,6 +69,14 @@ export default function Home() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  // 맛으로 필터링된 제품 목록
+  const filteredProducts = useMemo(() => {
+    if (selectedFlavor === "전체") {
+      return products;
+    }
+    return products.filter((p) => p.productName.includes(selectedFlavor));
+  }, [products, selectedFlavor]);
+
   // 초기 데이터 로드
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -81,6 +106,15 @@ export default function Home() {
 
     fetchInitialData();
   }, []);
+
+  // 맛 변경 시 선택된 제품 초기화
+  useEffect(() => {
+    setSelectedProduct(null);
+    setPackaging(null);
+    setBox(null);
+    setSerialLots([]);
+    setSelectedLot("");
+  }, [selectedFlavor]);
 
   // 생산품 선택 시 포장지/박스 자동 조회
   useEffect(() => {
@@ -177,6 +211,7 @@ export default function Home() {
   const resetForm = () => {
     setSelectedWorker("");
     setSelectedLine("");
+    setSelectedFlavor("전체");
     setSelectedProduct(null);
     setSelectedLot("");
     setPackaging(null);
@@ -199,6 +234,13 @@ export default function Home() {
       improvement: "",
       completionStatus: "",
     });
+  };
+
+  // 수량 포맷팅 (천 단위 콤마)
+  const formatQuantity = (qty: string) => {
+    const num = parseFloat(qty);
+    if (isNaN(num)) return qty;
+    return num.toLocaleString("ko-KR");
   };
 
   if (isLoading) {
@@ -267,10 +309,28 @@ export default function Home() {
             </select>
           </div>
 
-          {/* 3. 생산품 선택 */}
+          {/* 3. 맛 선택 */}
           <div className="bg-white p-4 rounded-lg shadow">
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              3. 생산품 선택
+              3. 맛 선택
+            </label>
+            <select
+              value={selectedFlavor}
+              onChange={(e) => setSelectedFlavor(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              {FLAVOR_OPTIONS.map((flavor) => (
+                <option key={flavor} value={flavor}>
+                  {flavor} {flavor !== "전체" && `(${products.filter(p => p.productName.includes(flavor)).length}개)`}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* 4. 생산품 선택 */}
+          <div className="bg-white p-4 rounded-lg shadow">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              4. 생산품 선택 ({filteredProducts.length}개)
             </label>
             <select
               value={selectedProduct?.productCode || ""}
@@ -283,7 +343,7 @@ export default function Home() {
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">선택하세요</option>
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <option key={product.productCode} value={product.productCode}>
                   {product.productCode} / {product.productName}{product.category ? ` [${product.category}]` : ""}
                 </option>
@@ -296,10 +356,10 @@ export default function Home() {
             <div className="bg-blue-50 p-4 rounded-lg shadow space-y-4">
               <h2 className="text-lg font-semibold text-blue-800">포장지</h2>
 
-              {/* 4. 포장지 자동선택 */}
+              {/* 5. 포장지 자동선택 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  4. 포장지 (자동)
+                  5. 포장지 (자동)
                 </label>
                 <div className="p-3 bg-gray-100 rounded-lg text-gray-700">
                   {packaging
@@ -308,30 +368,49 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 5. 포장지 로트 선택 */}
+              {/* 6. 포장지 로트 선택 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  5. 포장지 로트
+                  6. 포장지 로트
                 </label>
                 <select
                   value={selectedLot}
                   onChange={(e) => setSelectedLot(e.target.value)}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
                   disabled={serialLots.length === 0}
                 >
                   <option value="">선택하세요</option>
                   {serialLots.map((lot, index) => (
-                    <option key={index} value={lot.lotNumber}>
-                      {lot.lotNumber} / {lot.stockQuantity}
+                    <option
+                      key={index}
+                      value={lot.lotNumber}
+                      className={index % 2 === 0 ? "bg-blue-50" : "bg-white"}
+                    >
+                      로트: {lot.lotNumber}  |  수량: {formatQuantity(lot.stockQuantity)} ea
                     </option>
                   ))}
                 </select>
+                {/* 선택된 로트 정보 표시 */}
+                {selectedLot && (
+                  <div className="mt-2 p-3 bg-blue-100 rounded-lg border-l-4 border-blue-500">
+                    <div className="flex justify-between items-center">
+                      <span className="text-blue-800 font-medium">
+                        로트: <span className="text-blue-900 font-bold">{selectedLot}</span>
+                      </span>
+                      <span className="text-green-700 font-medium">
+                        수량: <span className="text-green-800 font-bold">
+                          {formatQuantity(serialLots.find(l => l.lotNumber === selectedLot)?.stockQuantity || "0")} ea
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* 6. 포장지 불량 */}
+              {/* 7. 포장지 불량 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  6. 포장지 불량
+                  7. 포장지 불량
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -408,20 +487,20 @@ export default function Home() {
             <div className="bg-amber-50 p-4 rounded-lg shadow space-y-4">
               <h2 className="text-lg font-semibold text-amber-800">박스</h2>
 
-              {/* 7. 박스 자동선택 */}
+              {/* 8. 박스 자동선택 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  7. 박스 (자동)
+                  8. 박스 (자동)
                 </label>
                 <div className="p-3 bg-gray-100 rounded-lg text-gray-700">
                   {box ? `${box.code} / ${box.name}` : "박스 정보 없음"}
                 </div>
               </div>
 
-              {/* 8. 박스 불량 */}
+              {/* 9. 박스 불량 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  8. 박스 불량
+                  9. 박스 불량
                 </label>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -493,9 +572,9 @@ export default function Home() {
             </div>
           )}
 
-          {/* 9. 특이사항 */}
+          {/* 10. 특이사항 */}
           <div className="bg-white p-4 rounded-lg shadow space-y-4">
-            <h2 className="text-lg font-semibold text-gray-800">9. 특이사항</h2>
+            <h2 className="text-lg font-semibold text-gray-800">10. 특이사항</h2>
             <div>
               <label className="block text-sm text-gray-600 mb-1">내용</label>
               <input
