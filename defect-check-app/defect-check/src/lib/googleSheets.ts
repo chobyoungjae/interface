@@ -183,7 +183,7 @@ export class GoogleSheetsService {
 
       const lots: SerialLot[] = [];
       rows.forEach((row, index) => {
-        const code = row.get("품목코드") || "";
+        const code = String(row.get("품목코드") || "").trim();
         const productName = row.get("품목명") || "";
         const lotNumber = row.get("시리얼/로트No.") || "";
         const stockQuantity = row.get("재고수량") || "";
@@ -193,8 +193,8 @@ export class GoogleSheetsService {
           console.log(`행 ${index}: 품목코드=${code}, 로트=${lotNumber}`);
         }
 
-        // 포장지 코드와 매칭되는 모든 로트 반환
-        if (code === packagingCode && lotNumber) {
+        // 포장지 코드와 매칭되는 모든 로트 반환 (숫자/문자열 모두 매칭)
+        if (code === packagingCode.trim() && lotNumber) {
           lots.push({
             code,
             productName,
