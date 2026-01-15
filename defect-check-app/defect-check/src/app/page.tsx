@@ -88,7 +88,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // 맛 + 키워드로 필터링된 제품 목록
   const filteredProducts = useMemo(() => {
@@ -189,7 +189,6 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess("");
 
     // 필수 필드 검증
     if (!selectedWorker || !selectedLine || !selectedProduct) {
@@ -222,9 +221,8 @@ export default function Home() {
       });
 
       if (res.ok) {
-        setSuccess("저장되었습니다!");
-        // 폼 초기화
-        resetForm();
+        // 성공 모달 표시
+        setShowSuccessModal(true);
       } else {
         const errorData = await res.json();
         setError(errorData.error || "저장에 실패했습니다.");
@@ -237,34 +235,10 @@ export default function Home() {
     }
   };
 
-  // 폼 초기화
-  const resetForm = () => {
-    setSelectedWorker("");
-    setSelectedLine("");
-    setSelectedFlavor("전체");
-    setSelectedKeyword("전체");
-    setSelectedProduct(null);
-    setSelectedLot("");
-    setPackaging(null);
-    setBox(null);
-    setSerialLots([]);
-    setPackagingDefect({
-      sealingDefect: 0,
-      weightDefect: 0,
-      printDefect: 0,
-      selfDefect: 0,
-    });
-    setBoxDefect({
-      contamination: 0,
-      damage: 0,
-      printDefect: 0,
-      other: 0,
-    });
-    setSpecialNote({
-      content: "",
-      improvement: "",
-      completionStatus: "",
-    });
+  // 성공 모달 확인 클릭 시 페이지 새로고침
+  const handleSuccessConfirm = () => {
+    setShowSuccessModal(false);
+    window.location.reload();
   };
 
   // 수량 포맷팅 (천 단위 콤마)
@@ -295,9 +269,26 @@ export default function Home() {
           </div>
         )}
 
-        {success && (
-          <div className="mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-            {success}
+        {/* 성공 모달 */}
+        {showSuccessModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl p-8 mx-4 max-w-sm w-full shadow-2xl transform animate-bounce-once">
+              <div className="text-center">
+                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">저장 완료!</h2>
+                <p className="text-gray-600 mb-6">불량체크 데이터가 저장되었습니다.</p>
+                <button
+                  onClick={handleSuccessConfirm}
+                  className="w-full py-4 bg-green-500 text-white font-bold text-lg rounded-xl hover:bg-green-600 transition-colors"
+                >
+                  확인
+                </button>
+              </div>
+            </div>
           </div>
         )}
 
