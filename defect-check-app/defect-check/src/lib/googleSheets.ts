@@ -138,10 +138,10 @@ export class GoogleSheetsService {
     }
   }
 
-  // 시리얼로트 조회 (BOM 시트 > 시리얼로트, 헤더 2행)
+  // 시리얼로트 조회 (저장 시트 > 시리얼로트, 헤더 2행)
   async readSerialLotData(packagingCode: string): Promise<SerialLot[]> {
     try {
-      const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
       const sheet = doc.sheetsByTitle["시리얼로트"];
 
       if (!sheet) {
