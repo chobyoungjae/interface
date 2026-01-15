@@ -213,7 +213,7 @@ export class GoogleSheetsService {
     }
   }
 
-  // 포장지 시트 A1 정보 조회 (저장 시트 > 포장지)
+  // 포장지 시트 A1 정보 조회 (저장 시트 > 포장지 탭)
   async readPackagingSheetInfo(): Promise<string> {
     try {
       const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
