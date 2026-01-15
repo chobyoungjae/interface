@@ -42,6 +42,12 @@ export interface SpecialNote {
   completionStatus: string;  // 완료여부
 }
 
+// 불량 등록 (로스)
+export interface LossData {
+  productionLoss: string;    // 생산시_가공로스 (kg)
+  mixingLoss: string;        // 배합_청소로스 (kg)
+}
+
 // 전체 불량체크 데이터 (제출용)
 export interface DefectCheckData {
   worker: string;            // 작업자
@@ -55,6 +61,7 @@ export interface DefectCheckData {
   boxCode: string;           // 박스코드
   boxName: string;           // 박스명
   boxDefect: BoxDefect;
+  lossData: LossData;        // 불량 등록 (로스)
   specialNote: SpecialNote;
 }
 

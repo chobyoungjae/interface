@@ -84,6 +84,12 @@ export default function Home() {
     completionStatus: "",
   });
 
+  // 불량 등록 (로스)
+  const [lossData, setLossData] = useState({
+    productionLoss: "",  // 생산시_가공로스 (kg)
+    mixingLoss: "",      // 배합_청소로스 (kg)
+  });
+
   // 로딩/에러 상태
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -210,6 +216,7 @@ export default function Home() {
       boxCode: box?.code || "",
       boxName: box?.name || "",
       boxDefect,
+      lossData,
       specialNote,
     };
 
@@ -617,9 +624,58 @@ export default function Home() {
             </div>
           )}
 
-          {/* 10. 특이사항 */}
+          {/* 10. 불량 등록 (로스) */}
+          <div className="bg-rose-50 p-4 rounded-lg shadow space-y-4">
+            <h2 className="text-lg font-semibold text-rose-800">10. 불량 등록</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  생산시_가공로스
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={lossData.productionLoss}
+                    onChange={(e) =>
+                      setLossData({ ...lossData, productionLoss: e.target.value })
+                    }
+                    className="w-full p-3 pr-12 border border-gray-300 rounded-lg"
+                    placeholder="0"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    kg
+                  </span>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  배합_청소로스
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={lossData.mixingLoss}
+                    onChange={(e) =>
+                      setLossData({ ...lossData, mixingLoss: e.target.value })
+                    }
+                    className="w-full p-3 pr-12 border border-gray-300 rounded-lg"
+                    placeholder="0"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
+                    kg
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 11. 특이사항 */}
           <div className="bg-white p-4 rounded-lg shadow space-y-4">
-            <h2 className="text-lg font-semibold text-gray-800">10. 특이사항</h2>
+            <h2 className="text-lg font-semibold text-gray-800">11. 특이사항</h2>
             <div>
               <label className="block text-sm text-gray-600 mb-1">내용</label>
               <input

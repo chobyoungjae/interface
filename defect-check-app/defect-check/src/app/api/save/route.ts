@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       hour12: false
     });
 
-    // 저장할 데이터 배열 생성 (A~U열 순서)
+    // 저장할 데이터 배열 생성 (A~W열 순서)
     const rowData = [
       timestamp,                              // A: 타임스탬프
       body.worker,                            // B: 작업자
@@ -41,9 +41,11 @@ export async function POST(request: Request) {
       body.boxDefect.damage,                  // P: 파손
       body.boxDefect.printDefect,             // Q: 날인불량(박스)
       body.boxDefect.other,                   // R: 기타
-      body.specialNote.content,               // S: 내용
-      body.specialNote.improvement,           // T: 개선조치사항
-      body.specialNote.completionStatus,      // U: 완료여부
+      body.lossData?.productionLoss || "",    // S: 생산시_가공로스
+      body.lossData?.mixingLoss || "",        // T: 배합_청소로스
+      body.specialNote.content,               // U: 내용
+      body.specialNote.improvement,           // V: 개선조치사항
+      body.specialNote.completionStatus,      // W: 완료여부
     ];
 
     await sheetsService.saveDefectData(rowData);
