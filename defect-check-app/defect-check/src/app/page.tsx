@@ -96,7 +96,19 @@ export default function Home() {
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  // 맛 + 키워드로 필터링된 제품 목록
+  // 맛으로만 필터링된 제품 (키워드 옵션 카운트용)
+  const flavorFilteredProducts = useMemo(() => {
+    if (selectedFlavor === "전체") return products;
+    return products.filter((p) => p.productName.includes(selectedFlavor));
+  }, [products, selectedFlavor]);
+
+  // 키워드로만 필터링된 제품 (맛 옵션 카운트용)
+  const keywordFilteredProducts = useMemo(() => {
+    if (selectedKeyword === "전체") return products;
+    return products.filter((p) => p.productName.includes(selectedKeyword));
+  }, [products, selectedKeyword]);
+
+  // 맛 + 키워드로 필터링된 제품 목록 (최종 결과)
   const filteredProducts = useMemo(() => {
     let filtered = products;
 
@@ -112,6 +124,22 @@ export default function Home() {
 
     return filtered;
   }, [products, selectedFlavor, selectedKeyword]);
+
+  // 현재 필터 기준으로 유효한 맛 옵션들 (키워드 기준 필터링)
+  const availableFlavors = useMemo(() => {
+    return FLAVOR_OPTIONS.filter((flavor) => {
+      if (flavor === "전체") return true;
+      return keywordFilteredProducts.some((p) => p.productName.includes(flavor));
+    });
+  }, [keywordFilteredProducts]);
+
+  // 현재 필터 기준으로 유효한 키워드 옵션들 (맛 기준 필터링)
+  const availableKeywords = useMemo(() => {
+    return KEYWORD_OPTIONS.filter((keyword) => {
+      if (keyword === "전체") return true;
+      return flavorFilteredProducts.some((p) => p.productName.includes(keyword));
+    });
+  }, [flavorFilteredProducts]);
 
   // 초기 데이터 로드
   useEffect(() => {
@@ -151,6 +179,20 @@ export default function Home() {
     setSerialLots([]);
     setSelectedLot("");
   }, [selectedFlavor, selectedKeyword]);
+
+  // 선택한 맛이 더 이상 유효하지 않으면 전체로 리셋
+  useEffect(() => {
+    if (selectedFlavor !== "전체" && !availableFlavors.includes(selectedFlavor as typeof FLAVOR_OPTIONS[number])) {
+      setSelectedFlavor("전체");
+    }
+  }, [availableFlavors, selectedFlavor]);
+
+  // 선택한 키워드가 더 이상 유효하지 않으면 전체로 리셋
+  useEffect(() => {
+    if (selectedKeyword !== "전체" && !availableKeywords.includes(selectedKeyword as typeof KEYWORD_OPTIONS[number])) {
+      setSelectedKeyword("전체");
+    }
+  }, [availableKeywords, selectedKeyword]);
 
   // 생산품 선택 시 포장지/박스 자동 조회
   useEffect(() => {
@@ -351,11 +393,15 @@ export default function Home() {
                   onChange={(e) => setSelectedFlavor(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  {FLAVOR_OPTIONS.map((flavor) => (
-                    <option key={flavor} value={flavor}>
-                      {flavor} {flavor !== "전체" && `(${products.filter(p => p.productName.includes(flavor)).length})`}
-                    </option>
-                  ))}
+                  {availableFlavors.map((flavor) => {
+                    // 키워드 필터 기준으로 카운트
+                    const count = keywordFilteredProducts.filter(p => p.productName.includes(flavor)).length;
+                    return (
+                      <option key={flavor} value={flavor}>
+                        {flavor} {flavor !== "전체" && `(${count})`}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
@@ -369,11 +415,15 @@ export default function Home() {
                   onChange={(e) => setSelectedKeyword(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
-                  {KEYWORD_OPTIONS.map((keyword) => (
-                    <option key={keyword} value={keyword}>
-                      {keyword} {keyword !== "전체" && `(${products.filter(p => p.productName.includes(keyword)).length})`}
-                    </option>
-                  ))}
+                  {availableKeywords.map((keyword) => {
+                    // 맛 필터 기준으로 카운트
+                    const count = flavorFilteredProducts.filter(p => p.productName.includes(keyword)).length;
+                    return (
+                      <option key={keyword} value={keyword}>
+                        {keyword} {keyword !== "전체" && `(${count})`}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
