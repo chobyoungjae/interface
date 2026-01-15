@@ -184,7 +184,7 @@ export class GoogleSheetsService {
       const lots: SerialLot[] = [];
       rows.forEach((row, index) => {
         const code = row.get("품목코드") || "";
-        const productName = row.get("제품명") || "";
+        const productName = row.get("품목명") || "";
         const lotNumber = row.get("시리얼/로트No.") || "";
         const stockQuantity = row.get("재고수량") || "";
 

@@ -11,10 +11,10 @@ export interface PackagingItem {
   name: string;           // G열: 소모품목명
 }
 
-// 시리얼 로트 정보 (BOM 시리얼로트 시트에서 가져옴)
+// 시리얼 로트 정보 (저장 시트 > 시리얼로트, 헤더 2행)
 export interface SerialLot {
   code: string;           // A열: 품목코드
-  productName: string;    // B열: 제품명
+  productName: string;    // B열: 품목명
   lotNumber: string;      // D열: 시리얼/로트No.
   stockQuantity: string;  // F열: 재고수량
 }
