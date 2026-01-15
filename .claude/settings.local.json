@@ -17,7 +17,8 @@
       "Bash(ren \"불량체크일지\" \"defect-check-app\")",
       "Bash(cmd /c \"rename 불량체크일지 defect-check-app\")",
       "Bash(dir \"c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\")",
-      "Bash(powershell -Command \"Rename-Item -Path ''c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\\\\불량체크일지'' -NewName ''defect-check-app''\")"
+      "Bash(powershell -Command \"Rename-Item -Path ''c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\\\\불량체크일지'' -NewName ''defect-check-app''\")",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []
