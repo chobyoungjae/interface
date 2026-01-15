@@ -213,14 +213,14 @@ export class GoogleSheetsService {
     }
   }
 
-  // 포장지 시트 A1 정보 조회 (저장 시트 > 포장지 탭)
+  // 시리얼로트 시트 A1 정보 조회 (저장 시트 > 시리얼로트 탭)
   async readPackagingSheetInfo(): Promise<string> {
     try {
       const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      const sheet = doc.sheetsByTitle["포장지"];
+      const sheet = doc.sheetsByTitle["시리얼로트"];
 
       if (!sheet) {
-        console.warn("포장지 시트를 찾을 수 없습니다.");
+        console.warn("시리얼로트 시트를 찾을 수 없습니다.");
         return "";
       }
 
