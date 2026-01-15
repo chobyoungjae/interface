@@ -97,6 +97,9 @@ export default function Home() {
   const [error, setError] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // 시트 정보 (포장지 시트 A1)
+  const [sheetInfo, setSheetInfo] = useState("");
+
   // 맛으로만 필터링된 제품 (키워드 옵션 카운트용)
   const flavorFilteredProducts = useMemo(() => {
     if (selectedFlavor === "전체") return products;
@@ -147,9 +150,10 @@ export default function Home() {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
-        const [workersRes, productsRes] = await Promise.all([
+        const [workersRes, productsRes, sheetInfoRes] = await Promise.all([
           fetch("/api/workers"),
           fetch("/api/products"),
+          fetch("/api/sheet-info"),
         ]);
 
         if (workersRes.ok) {
@@ -160,6 +164,11 @@ export default function Home() {
         if (productsRes.ok) {
           const productsData = await productsRes.json();
           setProducts(productsData);
+        }
+
+        if (sheetInfoRes.ok) {
+          const sheetInfoData = await sheetInfoRes.json();
+          setSheetInfo(sheetInfoData.info || "");
         }
       } catch (err) {
         console.error("초기 데이터 로드 실패:", err);
@@ -300,11 +309,9 @@ export default function Home() {
     window.location.reload();
   };
 
-  // 수량 포맷팅 (천 단위 콤마)
+  // 수량 포맷팅 (원본 값 그대로 반환 - 이미 시트에서 포맷됨)
   const formatQuantity = (qty: string) => {
-    const num = parseFloat(qty);
-    if (isNaN(num)) return qty;
-    return num.toLocaleString("ko-KR");
+    return qty || "0";
   };
 
   if (isLoading) {
@@ -318,6 +325,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-2xl mx-auto">
+        {/* 시트 정보 표시 */}
+        {sheetInfo && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            {sheetInfo}
+          </div>
+        )}
+
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
           불량체크일지
         </h1>
@@ -685,8 +699,8 @@ export default function Home() {
           )}
 
           {/* 10. 불량 등록 (로스) */}
-          <div className="bg-rose-50 p-4 rounded-lg shadow space-y-4">
-            <h2 className="text-lg font-semibold text-rose-800">10. 불량 등록</h2>
+          <div className="bg-white p-4 rounded-lg shadow space-y-4">
+            <h2 className="text-lg font-semibold text-gray-800">10. 불량 등록</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm text-gray-600 mb-1">

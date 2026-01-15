@@ -213,6 +213,26 @@ export class GoogleSheetsService {
     }
   }
 
+  // 포장지 시트 A1 정보 조회 (저장 시트 > 포장지)
+  async readPackagingSheetInfo(): Promise<string> {
+    try {
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle["포장지"];
+
+      if (!sheet) {
+        console.warn("포장지 시트를 찾을 수 없습니다.");
+        return "";
+      }
+
+      await sheet.loadCells("A1");
+      const a1Cell = sheet.getCell(0, 0);
+      return String(a1Cell.value || "");
+    } catch (error) {
+      console.error("포장지 시트 정보 읽기 실패:", error);
+      return "";
+    }
+  }
+
   // 불량 데이터 저장 (저장 시트 > 시트1)
   async saveDefectData(data: (string | number)[]): Promise<void> {
     try {

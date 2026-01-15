@@ -62,9 +62,9 @@ export class GoogleSheetsService {
       const doc = await this.authenticateDoc(
         process.env.STORAGE_SPREADSHEET_ID!
       );
-      const sheet = doc.sheetsByTitle["시리얼로트"];
+      const sheet = doc.sheetsByTitle["원재료"];
       if (!sheet) {
-        console.warn("시리얼로트 시트를 찾을 수 없습니다.");
+        console.warn("원재료 시트를 찾을 수 없습니다.");
         return [];
       }
 
@@ -220,9 +220,9 @@ export class GoogleSheetsService {
       const doc = await this.authenticateDoc(
         process.env.STORAGE_SPREADSHEET_ID!
       );
-      const sheet = doc.sheetsByTitle["시리얼로트"];
+      const sheet = doc.sheetsByTitle["원재료"];
       if (!sheet) {
-        console.warn("시리얼로트 시트를 찾을 수 없습니다.");
+        console.warn("원재료 시트를 찾을 수 없습니다.");
         return null;
       }
 
