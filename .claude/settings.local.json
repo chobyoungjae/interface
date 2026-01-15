@@ -10,7 +10,14 @@
       "Bash(npm run dev:*)",
       "Bash(curl:*)",
       "Bash(npx create-next-app:*)",
-      "Bash(npx create-next-app@latest defect-check --typescript --tailwind --eslint --app --src-dir --no-import-alias --use-npm --turbopack)"
+      "Bash(npx create-next-app@latest defect-check --typescript --tailwind --eslint --app --src-dir --no-import-alias --use-npm --turbopack)",
+      "Bash(git config:*)",
+      "Bash(npm update:*)",
+      "Bash(dir \"c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\\\\불량체크일지\")",
+      "Bash(ren \"불량체크일지\" \"defect-check-app\")",
+      "Bash(cmd /c \"rename 불량체크일지 defect-check-app\")",
+      "Bash(dir \"c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\")",
+      "Bash(powershell -Command \"Rename-Item -Path ''c:\\\\Users\\\\미쓰리\\\\Desktop\\\\깃허브\\\\interface\\\\불량체크일지'' -NewName ''defect-check-app''\")"
     ],
     "deny": [],
     "ask": []
