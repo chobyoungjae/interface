@@ -122,20 +122,14 @@ export class GoogleSheetsService {
 
   async saveProductionData(data: unknown[]): Promise<void> {
     try {
-      console.log('저장할 데이터:', data);
-      console.log('스프레드시트 ID:', process.env.STORAGE_SPREADSHEET_ID);
-      
       const doc = await this.authenticateDoc(
         process.env.STORAGE_SPREADSHEET_ID!
       );
-      console.log('인증 성공, 스프레드시트 제목:', doc.title);
 
       const sheet = doc.sheetsByTitle["시트1"] || doc.sheetsByIndex[0];
-      console.log('사용할 시트:', sheet.title);
 
       // 필요한 열 수 계산
       const requiredColumns = data.length;
-      console.log('필요한 열 수:', requiredColumns);
 
       // 기본 헤더 정의 (A~K)
       const baseHeaders = [
@@ -165,14 +159,10 @@ export class GoogleSheetsService {
         materialCount++;
       }
 
-      console.log('설정할 헤더:', newHeaders);
-      
       try {
         // 헤더를 강제로 설정 (기존 헤더 무시)
         await sheet.setHeaderRow(newHeaders);
-        console.log('헤더 설정 완료');
-      } catch (headerError) {
-        console.error('헤더 설정 실패:', headerError);
+      } catch {
         // 헤더 설정에 실패하면 첫 번째 행을 직접 업데이트
         await sheet.loadCells(`A1:${String.fromCharCode(65 + newHeaders.length - 1)}1`);
         for (let i = 0; i < newHeaders.length; i++) {
@@ -180,35 +170,32 @@ export class GoogleSheetsService {
           cell.value = newHeaders[i];
         }
         await sheet.saveUpdatedCells();
-        console.log('헤더 직접 설정 완료');
       }
 
-      console.log('행 추가 시작');
       await sheet.addRow(data as unknown as Record<string, string | number>);
-      console.log('행 추가 완료');
     } catch (error) {
       console.error("생산 데이터 저장 실패:", error);
       throw new Error("생산 데이터를 저장하는 중 오류가 발생했습니다.");
     }
   }
 
-  async getPasswordFromSheet(): Promise<string> {
+  async getPasswordFromSheet(): Promise<string | null> {
     try {
       const doc = await this.authenticateDoc(process.env.BOM_SPREADSHEET_ID!);
       const sheet = doc.sheetsByTitle["비밀번호"];
       if (!sheet) {
         console.warn("비밀번호 시트를 찾을 수 없습니다.");
-        return 'bom2024!'; // 기본값
+        return null;
       }
 
       await sheet.loadCells();
       const a1Cell = sheet.getCell(0, 0); // A1 (0-based index)
-      const password = String(a1Cell.value || 'bom2024!');
-      
+      const password = a1Cell.value ? String(a1Cell.value) : null;
+
       return password;
     } catch (error) {
       console.error("비밀번호 읽기 실패:", error);
-      return 'bom2024!'; // 기본값
+      return null;
     }
   }
 
