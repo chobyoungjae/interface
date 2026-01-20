@@ -68,8 +68,9 @@ export default function HomePage() {
   const loadProducts = async () => {
     try {
       const response = await fetch("/api/products");
+      if (!response.ok) return;
       const data = await response.json();
-      setProducts(data);
+      if (Array.isArray(data)) setProducts(data);
     } catch (error) {
       console.error("제품 데이터 로딩 실패:", error);
       setErrors(["제품 데이터를 불러올 수 없습니다."]);
@@ -79,8 +80,9 @@ export default function HomePage() {
   const loadSerialLotData = async () => {
     try {
       const response = await fetch("/api/serial-lot");
+      if (!response.ok) return;
       const data = await response.json();
-      setSerialLotData(data);
+      if (Array.isArray(data)) setSerialLotData(data);
     } catch (error) {
       console.error("시리얼로트 데이터 로딩 실패:", error);
     }
@@ -89,8 +91,9 @@ export default function HomePage() {
   const loadAllMaterials = async () => {
     try {
       const response = await fetch("/api/materials");
+      if (!response.ok) return;
       const data = await response.json();
-      setAllMaterials(data);
+      if (Array.isArray(data)) setAllMaterials(data);
     } catch (error) {
       console.error("원재료 목록 로딩 실패:", error);
     }
@@ -99,8 +102,9 @@ export default function HomePage() {
   const loadAuthors = async () => {
     try {
       const response = await fetch("/api/authors");
+      if (!response.ok) return;
       const data = await response.json();
-      setAuthors(data);
+      if (Array.isArray(data)) setAuthors(data);
     } catch (error) {
       console.error("작성자 목록 로딩 실패:", error);
     }

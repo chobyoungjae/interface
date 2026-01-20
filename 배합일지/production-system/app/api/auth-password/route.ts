@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     const rateLimit = checkRateLimit(clientIp);
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        { error: `너무 많은 시도입니다. ${rateLimit.remainingTime}분 후에 다시 시도해주세요.` },
+        { error: `Too many attempts. Please try again in ${rateLimit.remainingTime} minutes.` },
         { status: 429 }
       );
     }
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
 
     if (!password) {
       return NextResponse.json(
-        { error: '비밀번호를 입력해주세요.' },
+        { error: 'Please enter password.' },
         { status: 400 }
       );
     }
@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     if (!correctPassword) {
       return NextResponse.json(
-        { error: '시스템 설정 오류입니다. 관리자에게 문의하세요.' },
+        { error: 'System configuration error. Please contact administrator.' },
         { status: 500 }
       );
     }
@@ -94,13 +94,13 @@ export async function POST(request: NextRequest) {
     } else {
       recordLoginAttempt(clientIp, false);
       return NextResponse.json(
-        { error: '비밀번호가 올바르지 않습니다.' },
+        { error: 'Incorrect password.' },
         { status: 401 }
       );
     }
   } catch {
     return NextResponse.json(
-      { error: '인증 중 오류가 발생했습니다.' },
+      { error: 'Authentication error occurred.' },
       { status: 500 }
     );
   }

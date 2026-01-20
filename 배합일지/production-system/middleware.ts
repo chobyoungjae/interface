@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
 
     if (!isValidSession) {
       return NextResponse.json(
-        { error: '인증이 필요합니다.' },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }

@@ -4,37 +4,62 @@ import { NextRequest } from 'next/server';
 const SESSION_COOKIE_NAME = 'bom_session';
 const SESSION_MAX_AGE = 60 * 60 * 8; // 8시간
 
-// 서버 메모리에 세션 저장 (프로덕션에서는 Redis 등 사용 권장)
-const sessions = new Map<string, { createdAt: number; expiresAt: number }>();
+// 환경 변수에서 시크릿 키 가져오기
+const SECRET_KEY = process.env.SESSION_SECRET || 'bom-production-system-secret-key-2024';
 
-function generateSessionId(): string {
-  const array = new Uint8Array(32);
-  crypto.getRandomValues(array);
-  return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+// 간단한 해시 함수 (Edge Runtime 호환)
+function simpleHash(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  // SECRET_KEY를 포함하여 더 안전하게
+  const combined = str + SECRET_KEY;
+  let hash2 = 5381;
+  for (let i = 0; i < combined.length; i++) {
+    hash2 = ((hash2 << 5) + hash2) + combined.charCodeAt(i);
+  }
+  return Math.abs(hash).toString(16) + Math.abs(hash2).toString(16);
 }
 
-function cleanExpiredSessions(): void {
-  const now = Date.now();
-  for (const [id, session] of sessions.entries()) {
-    if (session.expiresAt < now) {
-      sessions.delete(id);
-    }
+// 세션 토큰 생성
+function createSessionToken(expiresAt: number): string {
+  const payload = `authenticated:${expiresAt}`;
+  const sig = simpleHash(payload);
+  return `${payload}:${sig}`;
+}
+
+// 세션 토큰 검증
+function verifySessionToken(token: string): boolean {
+  try {
+    const parts = token.split(':');
+    if (parts.length !== 3) return false;
+
+    const [status, expiresAtStr, signature] = parts;
+    const payload = `${status}:${expiresAtStr}`;
+
+    // 서명 검증
+    const expectedSig = simpleHash(payload);
+    if (signature !== expectedSig) return false;
+
+    // 만료 시간 확인
+    const expiresAt = parseInt(expiresAtStr, 10);
+    if (isNaN(expiresAt) || expiresAt < Date.now()) return false;
+
+    return status === 'authenticated';
+  } catch {
+    return false;
   }
 }
 
 export async function createSession(): Promise<string> {
-  cleanExpiredSessions();
-
-  const sessionId = generateSessionId();
-  const now = Date.now();
-
-  sessions.set(sessionId, {
-    createdAt: now,
-    expiresAt: now + SESSION_MAX_AGE * 1000,
-  });
+  const expiresAt = Date.now() + SESSION_MAX_AGE * 1000;
+  const token = createSessionToken(expiresAt);
 
   const cookieStore = await cookies();
-  cookieStore.set(SESSION_COOKIE_NAME, sessionId, {
+  cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
@@ -42,56 +67,31 @@ export async function createSession(): Promise<string> {
     path: '/',
   });
 
-  return sessionId;
+  return token;
 }
 
 export async function validateSession(): Promise<boolean> {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
-  if (!sessionId) {
+  if (!token) {
     return false;
   }
 
-  const session = sessions.get(sessionId);
-  if (!session) {
-    return false;
-  }
-
-  if (session.expiresAt < Date.now()) {
-    sessions.delete(sessionId);
-    return false;
-  }
-
-  return true;
+  return verifySessionToken(token);
 }
 
 export function validateSessionFromRequest(request: NextRequest): boolean {
-  const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
+  const token = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
-  if (!sessionId) {
+  if (!token) {
     return false;
   }
 
-  const session = sessions.get(sessionId);
-  if (!session) {
-    return false;
-  }
-
-  if (session.expiresAt < Date.now()) {
-    sessions.delete(sessionId);
-    return false;
-  }
-
-  return true;
+  return verifySessionToken(token);
 }
 
 export async function destroySession(): Promise<void> {
   const cookieStore = await cookies();
-  const sessionId = cookieStore.get(SESSION_COOKIE_NAME)?.value;
-
-  if (sessionId) {
-    sessions.delete(sessionId);
-    cookieStore.delete(SESSION_COOKIE_NAME);
-  }
+  cookieStore.delete(SESSION_COOKIE_NAME);
 }
