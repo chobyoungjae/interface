@@ -32,7 +32,9 @@
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
-      "Read(/C:\\Users\\미쓰리\\.claude/**)"
+      "Read(/C:\\Users\\미쓰리\\.claude/**)",
+      "Bash(npx next build:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
