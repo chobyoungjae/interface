@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Google Sans', Arial, sans-serif;
+    }
+
+    body {
+      padding: 20px;
+      margin: 0;
+      background: #f8f9fa;
+    }
+
+    h3 {
+      margin: 0 0 20px 0;
+      color: #202124;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #5f6368;
+      font-weight: 500;
+    }
+
+    input[type="date"] {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #dadce0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #202124;
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    input[type="date"]:focus {
+      outline: none;
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #1a73e8;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1557b0;
+    }
+
+    .btn-primary:disabled {
+      background: #dadce0;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #5f6368;
+      border: 1px solid #dadce0;
+    }
+
+    .btn-secondary:hover {
+      background: #f1f3f4;
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status.loading {
+      display: block;
+      background: #e8f0fe;
+      color: #1a73e8;
+    }
+
+    .status.success {
+      display: block;
+      background: #e6f4ea;
+      color: #137333;
+      white-space: pre-line;
+    }
+
+    .status.error {
+      display: block;
+      background: #fce8e6;
+      color: #c5221f;
+    }
+
+    .quick-select {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .quick-btn {
+      flex: 1;
+      padding: 8px;
+      background: white;
+      border: 1px solid #dadce0;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #5f6368;
+      cursor: pointer;
+    }
+
+    .quick-btn:hover {
+      background: #f1f3f4;
+      border-color: #1a73e8;
+      color: #1a73e8;
+    }
+  </style>
+</head>
+<body>
+  <h3>📅 변환할 날짜 범위를 선택하세요</h3>
+
+  <div class="quick-select">
+    <button class="quick-btn" onclick="setToday()">오늘</button>
+    <button class="quick-btn" onclick="setYesterday()">어제</button>
+    <button class="quick-btn" onclick="setThisWeek()">이번 주</button>
+    <button class="quick-btn" onclick="setThisMonth()">이번 달</button>
+  </div>
+
+  <div class="form-group">
+    <label for="startDate">시작 날짜</label>
+    <input type="date" id="startDate" required>
+  </div>
+
+  <div class="form-group">
+    <label for="endDate">종료 날짜</label>
+    <input type="date" id="endDate" required>
+  </div>
+
+  <div class="button-group">
+    <button class="btn-secondary" onclick="google.script.host.close()">취소</button>
+    <button class="btn-primary" id="convertBtn" onclick="convert()">변환 실행</button>
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <script>
+    // 오늘 날짜를 기본값으로 설정
+    function init() {
+      const today = new Date();
+      const todayStr = formatDate(today);
+      document.getElementById('startDate').value = todayStr;
+      document.getElementById('endDate').value = todayStr;
+    }
+
+    // 날짜를 yyyy-MM-dd 형식으로 변환
+    function formatDate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    // 빠른 선택 - 오늘
+    function setToday() {
+      const today = formatDate(new Date());
+      document.getElementById('startDate').value = today;
+      document.getElementById('endDate').value = today;
+    }
+
+    // 빠른 선택 - 어제
+    function setYesterday() {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayStr = formatDate(yesterday);
+      document.getElementById('startDate').value = yesterdayStr;
+      document.getElementById('endDate').value = yesterdayStr;
+    }
+
+    // 빠른 선택 - 이번 주
+    function setThisWeek() {
+      const today = new Date();
+      const dayOfWeek = today.getDay();
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+
+      document.getElementById('startDate').value = formatDate(monday);
+      document.getElementById('endDate').value = formatDate(today);
+    }
+
+    // 빠른 선택 - 이번 달
+    function setThisMonth() {
+      const today = new Date();
+      const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+
+      document.getElementById('startDate').value = formatDate(firstDay);
+      document.getElementById('endDate').value = formatDate(today);
+    }
+
+    // 변환 실행
+    function convert() {
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+      const statusDiv = document.getElementById('status');
+      const convertBtn = document.getElementById('convertBtn');
+
+      // 유효성 검사
+      if (!startDate || !endDate) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '시작 날짜와 종료 날짜를 모두 선택해주세요.';
+        return;
+      }
+
+      if (startDate > endDate) {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '시작 날짜가 종료 날짜보다 늦을 수 없습니다.';
+        return;
+      }
+
+      // 로딩 상태
+      statusDiv.className = 'status loading';
+      statusDiv.textContent = '⏳ 변환 중...';
+      convertBtn.disabled = true;
+
+      // 서버 함수 호출
+      google.script.run
+        .withSuccessHandler(function(result) {
+          convertBtn.disabled = false;
+          if (result.success) {
+            statusDiv.className = 'status success';
+            statusDiv.textContent = result.message;
+          } else {
+            statusDiv.className = 'status error';
+            statusDiv.textContent = result.message;
+          }
+        })
+        .withFailureHandler(function(error) {
+          convertBtn.disabled = false;
+          statusDiv.className = 'status error';
+          statusDiv.textContent = '오류: ' + error.message;
+        })
+        .convertToERP(startDate, endDate);
+    }
+
+    // 초기화
+    init();
+  </script>
+</body>
+</html>
