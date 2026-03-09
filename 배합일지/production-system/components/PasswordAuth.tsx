@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface PasswordAuthProps {
   children: React.ReactNode;
@@ -9,9 +9,28 @@ interface PasswordAuthProps {
 export default function PasswordAuth({ children }: PasswordAuthProps) {
   const [password, setPassword] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isCheckingSession, setIsCheckingSession] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  // 기존 세션 확인 (새로고침 시 재로그인 방지)
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      try {
+        const response = await fetch('/api/auth-password');
+        const data = await response.json();
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        }
+      } catch {
+        // 세션 확인 실패 시 로그인 폼 표시
+      } finally {
+        setIsCheckingSession(false);
+      }
+    };
+    checkExistingSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,9 +57,21 @@ export default function PasswordAuth({ children }: PasswordAuthProps) {
       console.error('Authentication error:', error);
       setError('인증 중 오류가 발생했습니다.');
     }
-    
+
     setIsLoading(false);
   };
+
+  // 세션 확인 중 로딩 표시
+  if (isCheckingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="flex items-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
+          <span className="text-gray-600">인증 확인 중...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
     return <>{children}</>;

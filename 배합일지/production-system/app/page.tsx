@@ -8,7 +8,16 @@ import CompanyInfoBanner from "@/components/CompanyInfoBanner";
 import DateMismatchModal from "@/components/DateMismatchModal";
 import { Product, Material, ProductionData } from "@/types";
 
+// 인증 후에만 마운트되는 메인 컨텐츠 컴포넌트
 export default function HomePage() {
+  return (
+    <PasswordAuth>
+      <ProductionContent />
+    </PasswordAuth>
+  );
+}
+
+function ProductionContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [inputWeight, setInputWeight] = useState<number>(0);
@@ -58,6 +67,7 @@ export default function HomePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [showDateMismatchModal, setShowDateMismatchModal] = useState(false);
 
+  // 인증 완료 후에만 이 컴포넌트가 마운트되므로, 세션 쿠키가 존재하는 상태에서 API 호출
   useEffect(() => {
     loadProducts();
     loadSerialLotData();
@@ -365,7 +375,7 @@ export default function HomePage() {
   };
 
   return (
-    <PasswordAuth>
+    <>
       <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
         <CompanyInfoBanner
           onDateMismatch={() => setShowDateMismatchModal(true)}
@@ -657,6 +667,6 @@ export default function HomePage() {
         isOpen={showDateMismatchModal}
         onClose={() => setShowDateMismatchModal(false)}
       />
-    </PasswordAuth>
+    </>
   );
 }

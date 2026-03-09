@@ -52,6 +52,17 @@ function recordLoginAttempt(ip: string, success: boolean): void {
   }
 }
 
+// 세션 유효성 확인 (기존 로그인 상태 체크)
+export async function GET(request: NextRequest) {
+  try {
+    const { validateSessionFromRequest } = await import('@/lib/session');
+    const isValid = validateSessionFromRequest(request);
+    return NextResponse.json({ authenticated: isValid });
+  } catch {
+    return NextResponse.json({ authenticated: false });
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const clientIp = getClientIp(request);
