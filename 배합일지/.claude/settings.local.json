@@ -33,8 +33,8 @@
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
       "Read(/C:\\Users\\미쓰리\\.claude/**)",
-      "Bash(npx next build:*)",
-      "Bash(ls:*)"
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
