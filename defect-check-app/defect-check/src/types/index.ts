@@ -65,14 +65,3 @@ export interface DefectCheckData {
   specialNote: SpecialNote;
 }
 
-// 라인 옵션 (고정값)
-export const LINE_OPTIONS = [
-  '1라인',
-  '2라인',
-  '3라인',
-  '4라인',
-  '수작업',
-  '배합실'
-] as const;
-
-export type LineOption = typeof LINE_OPTIONS[number];

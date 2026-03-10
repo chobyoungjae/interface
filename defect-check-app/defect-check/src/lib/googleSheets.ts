@@ -2,6 +2,24 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
 import { Product, PackagingItem, SerialLot } from "@/types";
 
+// 기본 맛 옵션 (옵션관리 시트에 데이터 없을 때 초기값)
+const DEFAULT_FLAVOR_OPTIONS = [
+  "오리지널", "순한", "단짠", "보통", "매콤한", "매운",
+  "불", "카레", "짜장", "로제", "마라", "궁중",
+];
+
+// 기본 키워드 옵션 (옵션관리 시트에 데이터 없을 때 초기값)
+const DEFAULT_KEYWORD_OPTIONS = [
+  "떡군이", "불스", "엄청난", "홈즈", "와플칸", "순수",
+  "오부장", "원달러", "시장", "한둘", "마법", "김치",
+  "닭", "짬뽕", "미쓰리",
+];
+
+// 기본 라인 옵션 (옵션관리 시트에 데이터 없을 때 초기값)
+const DEFAULT_LINE_OPTIONS = [
+  "1라인", "2라인", "3라인", "4라인", "수작업", "배합실",
+];
+
 export class GoogleSheetsService {
   private static instance: GoogleSheetsService;
 
@@ -23,39 +41,6 @@ export class GoogleSheetsService {
     const doc = new GoogleSpreadsheet(spreadsheetId, serviceAccountAuth);
     await doc.loadInfo();
     return doc;
-  }
-
-  // 작업자 목록 조회 (저장 시트 > B시트, 헤더 4행)
-  async readWorkersData(): Promise<string[]> {
-    try {
-      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
-      const sheet = doc.sheetsByTitle["B시트"];
-
-      if (!sheet) {
-        console.warn("B시트를 찾을 수 없습니다.");
-        return [];
-      }
-
-      // 헤더가 4행에 있으므로 4행을 헤더로 설정
-      await sheet.loadHeaderRow(4);
-      const rows = await sheet.getRows();
-
-      // B열(이름)과 C열(부서)에서 부서가 "생산팀"인 사람들만 필터링
-      const workers: string[] = [];
-      rows.forEach((row) => {
-        const name = row.get("이름") || "";
-        const department = row.get("부서") || "";
-
-        if (name && department === "생산팀") {
-          workers.push(name);
-        }
-      });
-
-      return [...new Set(workers)]; // 중복 제거
-    } catch (error) {
-      console.error("작업자 데이터 읽기 실패:", error);
-      return [];
-    }
   }
 
   // 생산품 목록 조회 (BOM 시트 > 시트2 + 저장 시트 > 기초코드)
@@ -230,6 +215,162 @@ export class GoogleSheetsService {
     } catch (error) {
       console.error("포장지 시트 정보 읽기 실패:", error);
       return "";
+    }
+  }
+
+  // 전체 옵션 한 번에 읽기: A열(맛), B열(키워드), C열(작업자), D열(라인)
+  async readAllOptions(): Promise<{ flavors: string[]; keywords: string[]; workers: string[]; lines: string[] }> {
+    try {
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle["옵션관리"];
+
+      if (!sheet) {
+        console.warn("옵션관리 시트를 찾을 수 없습니다. 기본값 사용.");
+        return {
+          flavors: [...DEFAULT_FLAVOR_OPTIONS],
+          keywords: [...DEFAULT_KEYWORD_OPTIONS],
+          workers: [],
+          lines: [...DEFAULT_LINE_OPTIONS],
+        };
+      }
+
+      // A~D열 한 번에 로드
+      await sheet.loadCells("A2:D100");
+
+      // 각 열 읽기 헬퍼
+      const readColumn = (colIndex: number): string[] => {
+        const values: string[] = [];
+        for (let row = 1; row < 100; row++) {
+          const cell = sheet.getCell(row, colIndex);
+          const value = cell.value;
+          if (value && String(value).trim()) {
+            values.push(String(value).trim());
+          }
+        }
+        return values;
+      };
+
+      const flavors = readColumn(0);
+      const keywords = readColumn(1);
+      const workers = readColumn(2);
+      const lines = readColumn(3);
+
+      // 비어있는 열만 기본값으로 초기화
+      let needSave = false;
+
+      const seedDefaults = (colIndex: number, defaults: string[], target: string[]) => {
+        if (target.length === 0 && defaults.length > 0) {
+          for (let i = 0; i < defaults.length; i++) {
+            sheet.getCell(1 + i, colIndex).value = defaults[i];
+          }
+          target.push(...defaults);
+          needSave = true;
+        }
+      };
+
+      seedDefaults(0, DEFAULT_FLAVOR_OPTIONS, flavors);
+      seedDefaults(1, DEFAULT_KEYWORD_OPTIONS, keywords);
+      // 작업자는 기본값 없음 (사용자가 직접 추가)
+      seedDefaults(3, DEFAULT_LINE_OPTIONS, lines);
+
+      if (needSave) {
+        await sheet.saveUpdatedCells();
+        console.log("옵션관리 시트에 기본값 초기화 완료");
+      }
+
+      return { flavors, keywords, workers, lines };
+    } catch (error) {
+      console.error("옵션 목록 읽기 실패:", error);
+      return {
+        flavors: [...DEFAULT_FLAVOR_OPTIONS],
+        keywords: [...DEFAULT_KEYWORD_OPTIONS],
+        workers: [],
+        lines: [...DEFAULT_LINE_OPTIONS],
+      };
+    }
+  }
+
+  // 타입별 열 매핑
+  private getColumnInfo(type: "flavor" | "keyword" | "worker" | "line") {
+    const map = { flavor: { col: "A", index: 0 }, keyword: { col: "B", index: 1 }, worker: { col: "C", index: 2 }, line: { col: "D", index: 3 } };
+    return map[type];
+  }
+
+  // 옵션 추가 (옵션관리 시트에 새 항목 추가)
+  async addOption(type: "flavor" | "keyword" | "worker" | "line", value: string): Promise<boolean> {
+    try {
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle["옵션관리"];
+      if (!sheet) return false;
+
+      const { col, index: colIndex } = this.getColumnInfo(type);
+
+      await sheet.loadCells(`${col}2:${col}100`);
+
+      // 중복 체크 및 빈 셀 찾기
+      let firstEmptyRow = -1;
+      for (let row = 1; row < 100; row++) {
+        const cell = sheet.getCell(row, colIndex);
+        const cellValue = cell.value ? String(cell.value).trim() : "";
+
+        if (cellValue === value.trim()) {
+          console.warn("이미 존재하는 옵션:", value);
+          return false;
+        }
+
+        if (!cellValue && firstEmptyRow === -1) {
+          firstEmptyRow = row;
+        }
+      }
+
+      if (firstEmptyRow === -1) {
+        console.warn("옵션 저장 공간이 부족합니다.");
+        return false;
+      }
+
+      const cell = sheet.getCell(firstEmptyRow, colIndex);
+      cell.value = value.trim();
+      await sheet.saveUpdatedCells();
+      return true;
+    } catch (error) {
+      console.error(`옵션 추가(${type}) 실패:`, error);
+      return false;
+    }
+  }
+
+  // 옵션 삭제 (삭제 후 빈 공간 없이 위로 당김)
+  async deleteOption(type: "flavor" | "keyword" | "worker" | "line", value: string): Promise<boolean> {
+    try {
+      const doc = await this.authenticateDoc(process.env.STORAGE_SPREADSHEET_ID!);
+      const sheet = doc.sheetsByTitle["옵션관리"];
+      if (!sheet) return false;
+
+      const { col, index: colIndex } = this.getColumnInfo(type);
+
+      await sheet.loadCells(`${col}2:${col}100`);
+
+      // 삭제 대상 제외하고 나머지 수집
+      const remaining: string[] = [];
+      for (let row = 1; row < 100; row++) {
+        const cell = sheet.getCell(row, colIndex);
+        const cellValue = cell.value ? String(cell.value).trim() : "";
+        if (cellValue && cellValue !== value.trim()) {
+          remaining.push(cellValue);
+        }
+      }
+
+      // 전체 다시 쓰기 (빈 공간 없이 위로 당김)
+      for (let row = 1; row < 100; row++) {
+        const cell = sheet.getCell(row, colIndex);
+        const idx = row - 1;
+        cell.value = idx < remaining.length ? remaining[idx] : "";
+      }
+
+      await sheet.saveUpdatedCells();
+      return true;
+    } catch (error) {
+      console.error(`옵션 삭제(${type}) 실패:`, error);
+      return false;
     }
   }
 

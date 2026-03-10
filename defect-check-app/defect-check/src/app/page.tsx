@@ -6,45 +6,8 @@ import {
   PackagingItem,
   SerialLot,
   DefectCheckData,
-  LINE_OPTIONS,
 } from "@/types";
-
-// 맛 옵션 (제품명에서 추출) - "맛" 글자 제외
-const FLAVOR_OPTIONS = [
-  "전체",
-  "오리지널",
-  "순한",
-  "단짠",
-  "보통",
-  "매콤한",
-  "매운",
-  "불",
-  "카레",
-  "짜장",
-  "로제",
-  "마라",
-  "궁중",
-] as const;
-
-// 키워드 옵션 (브랜드/제품 특성)
-const KEYWORD_OPTIONS = [
-  "전체",
-  "떡군이",
-  "불스",
-  "엄청난",
-  "홈즈",
-  "와플칸",
-  "순수",
-  "오부장",
-  "원달러",
-  "시장",
-  "한둘",
-  "마법",
-  "김치",
-  "닭",
-  "짬뽕",
-  "미쓰리",
-] as const;
+import ManageOptionsModal from "@/components/ManageOptionsModal";
 
 export default function Home() {
   // 드롭다운 데이터
@@ -100,6 +63,19 @@ export default function Home() {
   // 시트 정보 (포장지 시트 A1)
   const [sheetInfo, setSheetInfo] = useState("");
 
+  // 동적 맛/키워드 옵션 (옵션관리 시트에서 로드)
+  const [flavorOptions, setFlavorOptions] = useState<string[]>([]);
+  const [keywordOptions, setKeywordOptions] = useState<string[]>([]);
+
+  // 동적 라인 옵션 (옵션관리 시트에서 로드)
+  const [lineOptions, setLineOptions] = useState<string[]>([]);
+
+  // 옵션 관리 모달
+  const [showFlavorModal, setShowFlavorModal] = useState(false);
+  const [showKeywordModal, setShowKeywordModal] = useState(false);
+  const [showWorkerModal, setShowWorkerModal] = useState(false);
+  const [showLineModal, setShowLineModal] = useState(false);
+
   // 맛으로만 필터링된 제품 (키워드 옵션 카운트용)
   const flavorFilteredProducts = useMemo(() => {
     if (selectedFlavor === "전체") return products;
@@ -129,37 +105,37 @@ export default function Home() {
     return filtered;
   }, [products, selectedFlavor, selectedKeyword]);
 
+  // "전체" 포함한 전체 맛/키워드 옵션 배열
+  const allFlavorOptions = useMemo(() => ["전체", ...flavorOptions], [flavorOptions]);
+  const allKeywordOptions = useMemo(() => ["전체", ...keywordOptions], [keywordOptions]);
+
   // 현재 필터 기준으로 유효한 맛 옵션들 (키워드 기준 필터링)
   const availableFlavors = useMemo(() => {
-    return FLAVOR_OPTIONS.filter((flavor) => {
+    return allFlavorOptions.filter((flavor) => {
       if (flavor === "전체") return true;
       return keywordFilteredProducts.some((p) => p.productName.includes(flavor));
     });
-  }, [keywordFilteredProducts]);
+  }, [keywordFilteredProducts, allFlavorOptions]);
 
   // 현재 필터 기준으로 유효한 키워드 옵션들 (맛 기준 필터링)
   const availableKeywords = useMemo(() => {
-    return KEYWORD_OPTIONS.filter((keyword) => {
+    return allKeywordOptions.filter((keyword) => {
       if (keyword === "전체") return true;
       return flavorFilteredProducts.some((p) => p.productName.includes(keyword));
     });
-  }, [flavorFilteredProducts]);
+  }, [flavorFilteredProducts, allKeywordOptions]);
 
   // 초기 데이터 로드
   useEffect(() => {
     const fetchInitialData = async () => {
       setIsLoading(true);
       try {
-        const [workersRes, productsRes, sheetInfoRes] = await Promise.all([
-          fetch("/api/workers"),
-          fetch("/api/products"),
-          fetch("/api/sheet-info"),
-        ]);
-
-        if (workersRes.ok) {
-          const workersData = await workersRes.json();
-          setWorkers(workersData);
-        }
+        const [productsRes, sheetInfoRes, optionsRes] =
+          await Promise.all([
+            fetch("/api/products"),
+            fetch("/api/sheet-info"),
+            fetch("/api/options"),
+          ]);
 
         if (productsRes.ok) {
           const productsData = await productsRes.json();
@@ -169,6 +145,14 @@ export default function Home() {
         if (sheetInfoRes.ok) {
           const sheetInfoData = await sheetInfoRes.json();
           setSheetInfo(sheetInfoData.info || "");
+        }
+
+        if (optionsRes.ok) {
+          const optionsData = await optionsRes.json();
+          setFlavorOptions(optionsData.flavors || []);
+          setKeywordOptions(optionsData.keywords || []);
+          setWorkers(optionsData.workers || []);
+          setLineOptions(optionsData.lines || []);
         }
       } catch (err) {
         console.error("초기 데이터 로드 실패:", err);
@@ -192,14 +176,14 @@ export default function Home() {
 
   // 선택한 맛이 더 이상 유효하지 않으면 전체로 리셋
   useEffect(() => {
-    if (selectedFlavor !== "전체" && !availableFlavors.includes(selectedFlavor as typeof FLAVOR_OPTIONS[number])) {
+    if (selectedFlavor !== "전체" && !availableFlavors.includes(selectedFlavor)) {
       setSelectedFlavor("전체");
     }
   }, [availableFlavors, selectedFlavor]);
 
   // 선택한 키워드가 더 이상 유효하지 않으면 전체로 리셋
   useEffect(() => {
-    if (selectedKeyword !== "전체" && !availableKeywords.includes(selectedKeyword as typeof KEYWORD_OPTIONS[number])) {
+    if (selectedKeyword !== "전체" && !availableKeywords.includes(selectedKeyword)) {
       setSelectedKeyword("전체");
     }
   }, [availableKeywords, selectedKeyword]);
@@ -309,6 +293,50 @@ export default function Home() {
     window.location.reload();
   };
 
+  // 옵션 목록 새로고침 (추가/삭제 후 호출)
+  const refreshOptions = async () => {
+    const res = await fetch("/api/options");
+    if (res.ok) {
+      const data = await res.json();
+      setFlavorOptions(data.flavors || []);
+      setKeywordOptions(data.keywords || []);
+      setWorkers(data.workers || []);
+      setLineOptions(data.lines || []);
+    }
+  };
+
+  // 옵션 추가 핸들러
+  const handleAddOption = async (type: "flavor" | "keyword" | "worker" | "line", value: string) => {
+    const res = await fetch("/api/options", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, value }),
+    });
+
+    if (res.ok) {
+      await refreshOptions();
+    } else {
+      const err = await res.json();
+      alert(err.error || "추가에 실패했습니다.");
+    }
+  };
+
+  // 옵션 삭제 핸들러
+  const handleDeleteOption = async (type: "flavor" | "keyword" | "worker" | "line", value: string) => {
+    const res = await fetch("/api/options", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type, value }),
+    });
+
+    if (res.ok) {
+      await refreshOptions();
+    } else {
+      const err = await res.json();
+      alert(err.error || "삭제에 실패했습니다.");
+    }
+  };
+
   // 수량 포맷팅 (원본 값 그대로 반환 - 이미 시트에서 포맷됨)
   const formatQuantity = (qty: string) => {
     return qty || "0";
@@ -365,12 +393,61 @@ export default function Home() {
           </div>
         )}
 
+        {/* 맛 옵션 관리 모달 */}
+        <ManageOptionsModal
+          title="맛 옵션 관리"
+          options={flavorOptions}
+          isOpen={showFlavorModal}
+          onClose={() => setShowFlavorModal(false)}
+          onAdd={(value) => handleAddOption("flavor", value)}
+          onDelete={(value) => handleDeleteOption("flavor", value)}
+        />
+
+        {/* 키워드 옵션 관리 모달 */}
+        <ManageOptionsModal
+          title="키워드 관리"
+          options={keywordOptions}
+          isOpen={showKeywordModal}
+          onClose={() => setShowKeywordModal(false)}
+          onAdd={(value) => handleAddOption("keyword", value)}
+          onDelete={(value) => handleDeleteOption("keyword", value)}
+        />
+
+        {/* 작업자 관리 모달 */}
+        <ManageOptionsModal
+          title="작업자 관리"
+          options={workers}
+          isOpen={showWorkerModal}
+          onClose={() => setShowWorkerModal(false)}
+          onAdd={(value) => handleAddOption("worker", value)}
+          onDelete={(value) => handleDeleteOption("worker", value)}
+        />
+
+        {/* 라인 관리 모달 */}
+        <ManageOptionsModal
+          title="라인 관리"
+          options={lineOptions}
+          isOpen={showLineModal}
+          onClose={() => setShowLineModal(false)}
+          onAdd={(value) => handleAddOption("line", value)}
+          onDelete={(value) => handleDeleteOption("line", value)}
+        />
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* 1. 작업자 */}
           <div className="bg-white p-4 rounded-lg shadow">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              1. 작업자
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">
+                1. 작업자
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowWorkerModal(true)}
+                className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200"
+              >
+                작업자 관리
+              </button>
+            </div>
             <select
               value={selectedWorker}
               onChange={(e) => setSelectedWorker(e.target.value)}
@@ -387,16 +464,25 @@ export default function Home() {
 
           {/* 2. 라인 */}
           <div className="bg-white p-4 rounded-lg shadow">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              2. 라인
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium text-gray-700">
+                2. 라인
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowLineModal(true)}
+                className="text-xs px-2 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200"
+              >
+                라인 관리
+              </button>
+            </div>
             <select
               value={selectedLine}
               onChange={(e) => setSelectedLine(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">선택하세요</option>
-              {LINE_OPTIONS.map((line) => (
+              {lineOptions.map((line) => (
                 <option key={line} value={line}>
                   {line}
                 </option>
@@ -409,16 +495,24 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4">
               {/* 맛 선택 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  3. 맛 선택
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    3. 맛 선택
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowFlavorModal(true)}
+                    className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  >
+                    맛 추가
+                  </button>
+                </div>
                 <select
                   value={selectedFlavor}
                   onChange={(e) => setSelectedFlavor(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   {availableFlavors.map((flavor) => {
-                    // 키워드 필터 기준으로 카운트
                     const count = keywordFilteredProducts.filter(p => p.productName.includes(flavor)).length;
                     return (
                       <option key={flavor} value={flavor}>
@@ -431,16 +525,24 @@ export default function Home() {
 
               {/* 키워드 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  키워드
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    키워드
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowKeywordModal(true)}
+                    className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+                  >
+                    키워드 추가
+                  </button>
+                </div>
                 <select
                   value={selectedKeyword}
                   onChange={(e) => setSelectedKeyword(e.target.value)}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                 >
                   {availableKeywords.map((keyword) => {
-                    // 맛 필터 기준으로 카운트
                     const count = flavorFilteredProducts.filter(p => p.productName.includes(keyword)).length;
                     return (
                       <option key={keyword} value={keyword}>
